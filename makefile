@@ -54,9 +54,9 @@ ifeq ($(NAME),MAC)
 	cd Mac && rm -f NoSpherA2 && make all -j
 endif
 
-test: 
+test:
 	cd tests && make all -k -B
-tests: 
+tests:
 	cd tests && make all -k -B
 
 
