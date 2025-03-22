@@ -51,18 +51,6 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 include(ExternalProject)
 
-ExternalProject_Add(compiler-rt
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/compiler-rt
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/compiler-rt
-  CMAKE_ARGS
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-    -DCMAKE_BUILD_TYPE=Release
-    -DLIBOMP_ENABLE_SHARED=OFF
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/compiler-rt
-    -DLIBOMP_INSTALL_ALIASES=OFF
-  BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/lib/libomp.a
-)
 ExternalProject_Add(llvm_openmp
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/openmp
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
@@ -84,17 +72,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
 )
-# Include directories
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/Lib
-  ${CMAKE_CURRENT_SOURCE_DIR}/Src
-)
-
-# Find OpenBLAS
-find_package(OpenBLAS QUIET)
-if(NOT OpenBLAS_FOUND)
-  message(STATUS "Using OpenBLAS from CPM")
-endif()
 
 # Add executable
 add_executable(NoSpherA2 ${SOURCE_FILES})
@@ -111,14 +88,13 @@ target_compile_options(NoSpherA2 PRIVATE
   $<$<CONFIG:Release>:-O3>
 )
 
-# Add dependencies
-add_dependencies(NoSpherA2 llvm_openmp)
 
 # Link libraries
 target_link_libraries(NoSpherA2 PRIVATE
-  ${OpenBLAS_LIBRARIES}
+  ${openblas_LIBRARIES}
   ${OPENMP_LIBRARY}
   mdspan
+  openblas::openblas
 )
 
 # Set output directories
@@ -129,7 +105,3 @@ set_target_properties(NoSpherA2 PROPERTIES
   OUTPUT_NAME_DEBUG "NoSpherA2_Debug"
 )
 
-# Install targets
-install(TARGETS NoSpherA2
-  RUNTIME DESTINATION bin
-)

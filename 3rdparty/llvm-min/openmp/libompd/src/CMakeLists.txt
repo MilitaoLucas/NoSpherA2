@@ -40,7 +40,7 @@ if(${LIBOMPD_LD_STD_FLAGS})
 endif()
 
 include_directories (
-        .
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${LIBOMP_INCLUDE_DIR}
         ${LIBOMP_SRC_DIR}
 )

@@ -3,6 +3,7 @@ import ompdModule
 import itertools
 from gdb.FrameDecorator import FrameDecorator
 import ompd
+from ompd_handles import ompd_task, ompd_parallel, ompd_thread
 import traceback
 from tempfile import NamedTemporaryFile
 

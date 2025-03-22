@@ -8,12 +8,12 @@
 #//===----------------------------------------------------------------------===//
 #
 
-if("${CMAKE_SOURCE_DIR}" STREQUAL ".")
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
   message(FATAL_ERROR "Direct configuration not supported, please use parent directory!")
 endif()
 
 # Add cmake directory to search for custom cmake functions
-set(CMAKE_MODULE_PATH cmake ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # Set libomp version
 set(LIBOMP_VERSION_MAJOR 5)
@@ -160,7 +160,7 @@ set(LIBOMP_HWLOC_INSTALL_DIR /usr/local CACHE PATH
   "Install path for hwloc library")
 
 # Get the build number from kmp_version.cpp
-libomp_get_build_number("." LIBOMP_VERSION_BUILD)
+libomp_get_build_number("${CMAKE_CURRENT_SOURCE_DIR}" LIBOMP_VERSION_BUILD)
 math(EXPR LIBOMP_VERSION_BUILD_YEAR "${LIBOMP_VERSION_BUILD}/10000")
 math(EXPR LIBOMP_VERSION_BUILD_MONTH_DAY "${LIBOMP_VERSION_BUILD}%10000")
 
@@ -256,7 +256,7 @@ elseif("${LIBOMP_LIB_TYPE}" STREQUAL "stubs")
 endif()
 
 # Setting directory names
-set(LIBOMP_BASE_DIR .)
+set(LIBOMP_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(LIBOMP_SRC_DIR ${LIBOMP_BASE_DIR}/src)
 set(LIBOMP_TOOLS_DIR ${LIBOMP_BASE_DIR}/tools)
 set(LIBOMP_INC_DIR ${LIBOMP_SRC_DIR}/include)

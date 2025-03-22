@@ -14,7 +14,7 @@ else()
   set(LIBARCHER_HAVE_LIBATOMIC 0)
 endif()
 
-set(LIBARCHER_TEST_PATH .)
+set(LIBARCHER_TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(LIBARCHER_TEST_FLAGS "" CACHE STRING
   "Extra compiler flags to send to the test compiler.")

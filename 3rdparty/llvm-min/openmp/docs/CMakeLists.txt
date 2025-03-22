@@ -1,7 +1,7 @@
 
 if (DOXYGEN_FOUND)
 if (LLVM_ENABLE_DOXYGEN)
-  set(abs_srcdir .)
+  set(abs_srcdir ${CMAKE_CURRENT_SOURCE_DIR})
   set(abs_builddir ${CMAKE_CURRENT_BINARY_DIR})
 
   if (HAVE_DOT)
@@ -55,7 +55,7 @@ if (LLVM_ENABLE_DOXYGEN)
     set(DOT_IMAGE_FORMAT "png")
   endif()
 
-  configure_file(doxygen.cfg.in
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doxygen.cfg.in
     ${CMAKE_CURRENT_BINARY_DIR}/doxygen.cfg @ONLY)
 
   set(abs_top_srcdir)

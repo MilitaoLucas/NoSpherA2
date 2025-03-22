@@ -17,8 +17,8 @@ include_directories (${OMPD_INCLUDE_PATH})
 include_directories (${LIBOMP_INCLUDE_DIR})
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/python-module/ompd/__init__.py
                    DEPENDS ompdModule.c ompdAPITests.c ompd/frame_filter.py ompd/__init__.py ompd/ompd_address_space.py ompd/ompd_callbacks.py ompd/ompd_handles.py ompd/ompd.py
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory ompd ${CMAKE_CURRENT_BINARY_DIR}/python-module/ompd/
-                   WORKING_DIRECTORY .)
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/ompd ${CMAKE_CURRENT_BINARY_DIR}/python-module/ompd/
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_target(ompd_gdb_plugin ALL
                   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/python-module/ompd/__init__.py

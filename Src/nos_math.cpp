@@ -3,8 +3,8 @@
 
 #define lapack_complex_float std::complex<float>
 #define lapack_complex_double std::complex<double>
-#include "lapacke.h" // for LAPACKE_xxx
-#include "cblas.h"
+#include <lapacke.h> // for LAPACKE_xxx
+#include <cblas.h>
 #include <execution>
 
 template <typename T>

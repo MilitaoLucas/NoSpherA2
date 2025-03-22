@@ -80,29 +80,29 @@ if(STUBS_LIBRARY)
 else()
   # Get C++ files
   set(LIBOMP_CXXFILES
-          kmp_alloc.cpp
-          kmp_atomic.cpp
-          kmp_csupport.cpp
-          kmp_debug.cpp
-          kmp_itt.cpp
-          kmp_environment.cpp
-          kmp_error.cpp
-          kmp_global.cpp
-          kmp_i18n.cpp
-          kmp_io.cpp
-          kmp_runtime.cpp
-          kmp_settings.cpp
-          kmp_str.cpp
-          kmp_tasking.cpp
-          kmp_threadprivate.cpp
-          kmp_utility.cpp
-          kmp_barrier.cpp
-          kmp_wait_release.cpp
-          kmp_affinity.cpp
-          kmp_dispatch.cpp
-          kmp_lock.cpp
-          kmp_sched.cpp
-          kmp_collapse.cpp
+    kmp_alloc.cpp
+    kmp_atomic.cpp
+    kmp_csupport.cpp
+    kmp_debug.cpp
+    kmp_itt.cpp
+    kmp_environment.cpp
+    kmp_error.cpp
+    kmp_global.cpp
+    kmp_i18n.cpp
+    kmp_io.cpp
+    kmp_runtime.cpp
+    kmp_settings.cpp
+    kmp_str.cpp
+    kmp_tasking.cpp
+    kmp_threadprivate.cpp
+    kmp_utility.cpp
+    kmp_barrier.cpp
+    kmp_wait_release.cpp
+    kmp_affinity.cpp
+    kmp_dispatch.cpp
+    kmp_lock.cpp
+    kmp_sched.cpp
+    kmp_collapse.cpp
   )
   if(WIN32)
     # Windows specific files
@@ -333,8 +333,8 @@ if(WIN32)
   add_custom_command(
     OUTPUT  ${LIBOMP_GENERATED_DEF_FILE}
     COMMAND ${Python3_EXECUTABLE} ${LIBOMP_TOOLS_DIR}/generate-def.py ${LIBOMP_GDFLAGS} --name ${LIBOMP_LIB_FILE}
-            -o ${LIBOMP_GENERATED_DEF_FILE} dllexports
-    DEPENDS dllexports ${LIBOMP_TOOLS_DIR}/generate-def.py
+            -o ${LIBOMP_GENERATED_DEF_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dllexports
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/dllexports ${LIBOMP_TOOLS_DIR}/generate-def.py
   )
 
   if(MSVC)
@@ -348,8 +348,8 @@ if(WIN32)
       OUTPUT  ${LIBOMPIMP_GENERATED_DEF_FILE}
       COMMAND ${Python3_EXECUTABLE} ${LIBOMP_TOOLS_DIR}/generate-def.py ${LIBOMP_GDFLAGS}
               --name ${LIBOMP_LIB_FILE} --no-ordinals
-              -o ${LIBOMPIMP_GENERATED_DEF_FILE} dllexports
-      DEPENDS dllexports ${LIBOMP_TOOLS_DIR}/generate-def.py
+              -o ${LIBOMPIMP_GENERATED_DEF_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dllexports
+      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/dllexports ${LIBOMP_TOOLS_DIR}/generate-def.py
     )
     # while this merely generates an import library off a def file, CMAKE still requires it to have a "source" so feed it a dummy one,
     # making it a .txt which CMAKE will filter out from the librarian (a .cpp will make lib.exe punt trying to resolve the .def symbols)

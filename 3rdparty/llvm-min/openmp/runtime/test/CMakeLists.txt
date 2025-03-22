@@ -38,7 +38,7 @@ pythonize_bool(OPENMP_TEST_COMPILER_HAS_OMIT_FRAME_POINTER_FLAGS)
 pythonize_bool(OPENMP_TEST_COMPILER_HAS_OMP_H)
 
 add_library(ompt-print-callback INTERFACE)
-target_include_directories(ompt-print-callback INTERFACE ompt)
+target_include_directories(ompt-print-callback INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/ompt)
 
 
 add_openmp_testsuite(check-libomp "Running libomp tests" ${CMAKE_CURRENT_BINARY_DIR} DEPENDS omp)

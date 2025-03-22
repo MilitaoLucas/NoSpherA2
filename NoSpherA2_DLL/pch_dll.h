@@ -18,7 +18,7 @@
 #include <windows.h>
 #include "../Src/pch.h"
 #include "../Src/isosurface.h"
-#include "../mdspan/include/mdspan/mdspan.hpp"
+#include <mdspan/mdspan.hpp>
 
 #ifdef _WIN32
 #ifdef BUILDING_DLL
