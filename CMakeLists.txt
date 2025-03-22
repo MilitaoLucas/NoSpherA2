@@ -74,9 +74,14 @@ include_directories(
 )
 
 # Add executable
-add_executable(NoSpherA2 ${SOURCE_FILES})
 
-# Set compile definitions
+
+add_custom_target(OpenBLAS
+  DEPENDS openblas_static
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CMAKE_BUILD_TOOL} install
+)
+add_executable(NoSpherA2 ${SOURCE_FILES})
 target_compile_definitions(NoSpherA2 PRIVATE
   $<$<CONFIG:Debug>:DEBUG>
   $<$<CONFIG:Release>:NDEBUG>
@@ -89,12 +94,10 @@ target_compile_options(NoSpherA2 PRIVATE
 )
 
 
-# Link libraries
+add_dependencies(NoSpherA2 OpenBLAS)
 target_link_libraries(NoSpherA2 PRIVATE
-  ${openblas_LIBRARIES}
   ${OPENMP_LIBRARY}
   mdspan
-  openblas::openblas
 )
 
 # Set output directories
