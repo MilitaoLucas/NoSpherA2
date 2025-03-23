@@ -3,6 +3,7 @@ project(NoSpherA2 CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)  # Allow GNU extensions
 
 set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -10,11 +11,12 @@ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(DEBUG_DIR ${CMAKE_SOURCE_DIR}/build_debug)
 
 if(WIN32)
-    set(NAME "WINDOWS")
+  set(NAME "WINDOWS")
 elseif(APPLE)
-    set(NAME "MAC")
+  set(NAME "MAC")
 elseif(UNIX)
-    set(NAME "LINUX")
+  set(NAME "LINUX")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
 endif()
 
 set(SOURCE_FILES
@@ -52,59 +54,74 @@ add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 include(ExternalProject)
 
 ExternalProject_Add(llvm_openmp
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/openmp
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
-  CMAKE_ARGS
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/openmp
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
+    CMAKE_ARGS
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
     -DCMAKE_BUILD_TYPE=Release
     -DLIBOMP_ENABLE_SHARED=OFF
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
     -DLIBOMP_INSTALL_ALIASES=OFF
-  BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/lib/libomp.a
+    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/lib/libomp.a
 )
 
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/lib/libomp.a)
 
+set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include/openblas)
+set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib64/libopenblas.a)
+
 include_directories(
     ${OPENMP_INCLUDE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/Lib
+    ${OPENBLAS_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
 )
 
-# Add executable
-
-
-add_custom_target(OpenBLAS
-  DEPENDS openblas_static
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMAND ${CMAKE_BUILD_TOOL} install
-)
 add_executable(NoSpherA2 ${SOURCE_FILES})
+add_dependencies(NoSpherA2 openblas)
 target_compile_definitions(NoSpherA2 PRIVATE
-  $<$<CONFIG:Debug>:DEBUG>
-  $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:Debug>:DEBUG>
+    $<$<CONFIG:Release>:NDEBUG>
 )
 
-# Set compile options
+
 target_compile_options(NoSpherA2 PRIVATE
-  $<$<CONFIG:Debug>:-g>
-  $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Debug>:-g>
+    $<$<CONFIG:Release>:-O3>
+    -fopenmp
+    -static
+    -MMD
+    -MP
+    -fmessage-length=0
 )
 
+target_precompile_headers(NoSpherA2 PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/pch.h
+)
 
-add_dependencies(NoSpherA2 OpenBLAS)
+target_link_options(NoSpherA2 PRIVATE
+    -static
+    -static-libgcc
+    -static-libstdc++
+)
+
 target_link_libraries(NoSpherA2 PRIVATE
-  ${OPENMP_LIBRARY}
-  mdspan
+    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
+    ${OPENBLAS_LIBRARY}
+    ${OPENMP_LIBRARY}
+    mdspan
+    openblas
+    -ldl
+    -lpthread
 )
 
 # Set output directories
 set_target_properties(NoSpherA2 PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
-  RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}
-  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}
-  OUTPUT_NAME_DEBUG "NoSpherA2_Debug"
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT_NAME_DEBUG "NoSpherA2_Debug"
 )
 
