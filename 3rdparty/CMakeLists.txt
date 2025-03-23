@@ -49,7 +49,6 @@ endif()
 
 if(mdspan_ADDED)
     add_library(mdspan::mdspan INTERFACE IMPORTED GLOBAL)
-    target_include_directories(mdspan INTERFACE ${mdspan_SOURCE_DIR}/include)
     target_compile_features(mdspan INTERFACE cxx_std_23)
     target_compile_definitions(mdspan INTERFACE MDSPAN_USE_PAREN_OPERATOR=1)
 endif()

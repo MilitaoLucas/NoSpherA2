@@ -16,9 +16,14 @@ elseif(APPLE)
   set(NAME "MAC")
 elseif(UNIX)
   set(NAME "LINUX")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-unique-section-names")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
+endif()
+message(INFO "Compiler_id: ${CMAKE_CXX_COMPILER_ID}")
 set(SOURCE_FILES
     Src/wfn_class.cpp
     Src/atoms.cpp
@@ -63,11 +68,11 @@ ExternalProject_Add(llvm_openmp
     -DLIBOMP_ENABLE_SHARED=OFF
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
     -DLIBOMP_INSTALL_ALIASES=OFF
-    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/lib/libomp.a
+    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libomp.a
 )
 
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
-set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/lib/libomp.a)
+set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libomp.a)
 
 set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include/openblas)
 set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib64/libopenblas.a)
