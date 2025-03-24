@@ -6,7 +6,27 @@ CPMAddPackage(
     DOWNLOAD_ONLY YES
 
 )
+CPMAddPackage(
+    NAME metatensor
+    GITHUB_REPOSITORY "metatensor/metatensor"
+    VERSION "0.7.3"
+    GIT_TAG "metatensor-torch-v0.7.3"
+    OPTIONS
+        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
+        "BUILD_SHARED_LIBS OFF"
+        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
+)
 
+CPMAddPackage(
+    NAME metatensor
+    GITHUB_REPOSITORY "chemfiles/chemfiles"
+    VERSION "0.7.3"
+    GIT_TAG "metatensor-torch-v0.7.3"
+    OPTIONS
+        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
+        "BUILD_SHARED_LIBS OFF"
+        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
+)
 CPMAddPackage(
     NAME mdspan
     GITHUB_REPOSITORY "kokkos/mdspan"
@@ -16,7 +36,7 @@ CPMAddPackage(
       "MDSPAN_USE_PAREN_OPERATOR 1"
       "MDSPAN_ENABLE_CONCEPTS ON"
 )
-    message(STATUS "openblas source:${openblas_BINARY_DIR} cm ${OpenBLAS_INCLUDE_DIR}")
+message(STATUS "openblas source:${openblas_BINARY_DIR} cm ${OpenBLAS_INCLUDE_DIR}")
 
 if(openblas_ADDED)
     include(ExternalProject)

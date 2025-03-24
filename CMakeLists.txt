@@ -71,11 +71,11 @@ ExternalProject_Add(llvm_openmp
     -DLIBOMP_ENABLE_SHARED=OFF
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
     -DLIBOMP_INSTALL_ALIASES=OFF
-    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libomp.a
+    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
 )
 
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
-set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libomp.a)
+set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
 set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include/openblas)
 set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib64/libopenblas.a)
@@ -88,7 +88,7 @@ include_directories(
 )
 
 add_executable(NoSpherA2 ${SOURCE_FILES})
-add_dependencies(NoSpherA2 llvm_openmp)
+add_dependencies(NoSpherA2 llvm_openmp openblas)
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
@@ -119,6 +119,7 @@ target_link_libraries(NoSpherA2 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
     ${OPENMP_LIBRARY}
+    ${OPENBLAS_LIBRARY}
     mdspan
     openblas
     -ldl
