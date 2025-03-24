@@ -18,6 +18,9 @@ elseif(UNIX)
   set(NAME "LINUX")
 endif()
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    option(BUILD_TESTING "Run tests" OFF)
+endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-unique-section-names")
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -57,7 +60,7 @@ set(SOURCE_FILES
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 include(ExternalProject)
-
+message(${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp)
 ExternalProject_Add(llvm_openmp
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/openmp
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
@@ -81,10 +84,11 @@ include_directories(
     ${OPENMP_INCLUDE_DIR}
     ${OPENBLAS_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
+    ${CMAKE_CURRENT_SOURCE_DIR}/Lib
 )
 
 add_executable(NoSpherA2 ${SOURCE_FILES})
-add_dependencies(NoSpherA2 openblas)
+add_dependencies(NoSpherA2 llvm_openmp)
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
@@ -92,7 +96,7 @@ target_compile_definitions(NoSpherA2 PRIVATE
 
 
 target_compile_options(NoSpherA2 PRIVATE
-    $<$<CONFIG:Debug>:-g>
+    $<$<CONFIG:Debug>:-g -Og>
     $<$<CONFIG:Release>:-O3>
     -fopenmp
     -static
@@ -114,7 +118,6 @@ target_link_options(NoSpherA2 PRIVATE
 target_link_libraries(NoSpherA2 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
-    ${OPENBLAS_LIBRARY}
     ${OPENMP_LIBRARY}
     mdspan
     openblas
@@ -129,3 +132,8 @@ set_target_properties(NoSpherA2 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    message(STATUS "Running tests")
+    enable_testing()
+    add_subdirectory(tests)
+endif()
