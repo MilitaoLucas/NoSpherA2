@@ -84,11 +84,11 @@ include_directories(
     ${OPENMP_INCLUDE_DIR}
     ${OPENBLAS_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
-    ${CMAKE_CURRENT_SOURCE_DIR}/Lib
+#    ${CMAKE_CURRENT_SOURCE_DIR}/Lib
 )
 
 add_executable(NoSpherA2 ${SOURCE_FILES})
-add_dependencies(NoSpherA2 llvm_openmp openblas)
+add_dependencies(NoSpherA2 llvm_openmp openblas metatensor chemfiles)
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
@@ -116,8 +116,10 @@ target_link_options(NoSpherA2 PRIVATE
 )
 
 target_link_libraries(NoSpherA2 PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
-    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
+#    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
+#    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
+    metatensor::metatensor
+    rascaline::rascaline
     ${OPENMP_LIBRARY}
     ${OPENBLAS_LIBRARY}
     mdspan

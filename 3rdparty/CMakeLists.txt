@@ -18,10 +18,20 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME metatensor
+    NAME rascaline
+    GITHUB_REPOSITORY "andreagrisafi/rascaline"
+    VERSION "0.1.0"
+    GIT_TAG "b3e095b5f7219d269020b220470406337b4ccfc7"
+    OPTIONS
+        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
+        "BUILD_SHARED_LIBS OFF"
+        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
+)
+CPMAddPackage(
+    NAME chemfiles
     GITHUB_REPOSITORY "chemfiles/chemfiles"
-    VERSION "0.7.3"
-    GIT_TAG "metatensor-torch-v0.7.3"
+    VERSION "0.10.4"
+    GIT_TAG "0.10.4"
     OPTIONS
         "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
         "BUILD_SHARED_LIBS OFF"
@@ -67,6 +77,21 @@ if(openblas_ADDED)
 endif()
 
 
+if(metatensor_ADDED)
+    add_library(metatensor::metatensor STATIC IMPORTED GLOBAL)
+    add_dependencies(metatensor::metatensor metatensor)
+    set_target_properties(metatensor::metatensor PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/_deps/metatensor-build/metatensor-core/target/debug/libmetatensor.a
+    )
+endif()
+
+if(rascaline_ADDED)
+    add_library(rascaline::rascaline STATIC IMPORTED GLOBAL)
+    add_dependencies(rascaline::rascaline rascaline)
+    set_target_properties(rascaline::rascaline PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/_deps/rascaline-build/rascaline-core/target/debug/librascaline.a
+    )
+endif()
 if(mdspan_ADDED)
     add_library(mdspan::mdspan INTERFACE IMPORTED GLOBAL)
     target_compile_features(mdspan INTERFACE cxx_std_23)
