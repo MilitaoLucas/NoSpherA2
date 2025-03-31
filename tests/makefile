@@ -1,15 +1,15 @@
 RM := rm
 
-ALL_TARGETS = sucrose_SF sucrose_IAM sucrose_twin fractal disorder_THPP grown_water properties rubredoxin_cmtc wfn_reading malbac_SF_ECP sucrose_ptb Hybrid_mode openBLAS ri_fit fourier_transform reading_SALTED SALTED 
+ALL_TARGETS = sucrose_SF sucrose_IAM sucrose_twin fractal disorder_THPP grown_water properties rubredoxin_cmtc wfn_reading malbac_SF_ECP sucrose_ptb Hybrid_mode openBLAS ri_fit fourier_transform reading_SALTED SALTED
 
 # Convert the path to an OS-specific format if necessary
 # For Unix-like systems, this will be a no-op
 ifeq ($(OS),Windows_NT)
-  BASE_PATH := ..\..\NoSpherA2.exe
+  BASE_PATH := ${EXE_PATH}\NoSpherA2.exe
   MV := move
   DIFF := fc /c
 else
-  BASE_PATH := ../../NoSpherA2
+  BASE_PATH := ${EXE_PATH}/NoSpherA2
   MV := mv
   DIFF := diff -q -i -b
 endif
@@ -76,7 +76,7 @@ sucrose_IAM:
 		-no-date\
 		&& ${MV} NoSpherA2.log $@.log\
 		&& ${DIFF} $@.log $@.good
-	
+
 sucrose_twin:
 	@echo 'Running test: $@'
 	@cd sucrose_fchk_SF && $(BASE_PATH) \
@@ -134,7 +134,7 @@ fourier_transform_full:
 	@cd SALTED && $(BASE_PATH) \
 		-test_analytical full -no-date \
 		&& ${MV} NoSpherA2.log $@.log \
-		&& ${DIFF} $@.log $@.good 
+		&& ${DIFF} $@.log $@.good
 
 fourier_transform:
 	@echo 'Running test: $@'
@@ -150,7 +150,7 @@ fractal:
 		-no_date \
 		&& ${MV} sucrose_diff.cube_fractal_plot $@.log \
 		&& ${DIFF} $@.log $@.good
-	
+
 properties:
 	@echo 'Running test: $@'
 	@cd sucrose_fchk_SF && $(BASE_PATH) \
@@ -160,7 +160,7 @@ properties:
 		-no-date \
 		&& ${MV} NoSpherA2_cube.log $@.log \
 		&& ${DIFF} $@.log $@.good
-	
+
 rubredoxin_cmtc:
 	@echo 'Running test: $@'
 	@cd rubredoxin_cmtc && $(BASE_PATH) \
@@ -216,7 +216,7 @@ Hybrid_mode:
 		-no-date \
 		&& ${MV} NoSpherA2.log $@.log \
 		&& ${DIFF} $@.log $@.good
-	
+
 wfn_reading:
 	@echo 'Running test: $@'
 	@cd wfn_reading && $(BASE_PATH) \
@@ -233,7 +233,8 @@ fchk_conversion:
 		-wfn in.ffn -no-date \
 		&& ${DIFF} in.fchk good.fchk
 
-.PHONY: all clean dependents SALTED reading_SALTED
+.PHONY: all clean dependents $(ALL_TARGETS)
+
 .SECONDARY:
 
 

@@ -107,8 +107,8 @@ target_link_options(NoSpherA2 PRIVATE
 target_link_libraries(NoSpherA2 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
-    ${OPENMP_LIBRARY}
     openblas
+    ${OPENMP_LIBRARY}
     -ldl
     -lpthread
     -latomic
