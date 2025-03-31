@@ -283,8 +283,8 @@ T dot_BLAS(const std::vector<T> &vec1, const std::vector<T> &vec2, bool conjugat
 #if defined(_WIN32) || defined(__APPLE__)
         result = cdouble(t.real, t.imag);
 #else
-        // result = t;
-        result = {creal(t), cimag(t)};
+        result = t;
+        // result = {creal(t), cimag(t)};
 #endif
     }
     else

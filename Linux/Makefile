@@ -9,8 +9,8 @@ ver := $(shell expr `${COMP} -dumpversion`)
 LIBOMP := ../3rdparty/llvm-min/openmp/build/runtime/src/libgomp.a
 LIBRASCALINE := ../Lib/librascaline.a
 LIBRASCALINE += ../Lib/libmetatensor.a
-LIBOPENBLAS := ../OpenBLAS/installation/lib/libopenblas.a
-LIBOPENBLAS_I := -I../OpenBLAS/installation/include
+LIBOPENBLAS := ../3rdparty/OpenBLAS/installation/lib/libopenblas.a
+LIBOPENBLAS_I := -I../3rdparty/OpenBLAS/installation/include
 
 all: NoSpherA2
 
@@ -34,7 +34,7 @@ omp:
 OpenBLAS:
 	@if [ ! -f $(LIBOPENBLAS) ]; then \
 		echo 'Building OpenBLAS, since $(LIBOPENBLAS) doesnt exist'; \
-		cd ../OpenBLAS && make -j && ${RM} installation && make install PREFIX=installation; \
+		cd ../3rdparty/OpenBLAS && make -j && ${RM} installation && make install PREFIX=installation; \
 	else \
 		echo 'Skipping OpenBLAS build, $(LIBOPENBLAS) already exists'; \
 	fi

@@ -2,21 +2,21 @@ CPMAddPackage(
     NAME openblas
     GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
     VERSION "0.3.29"
-    GIT_TAG "a64b75a2e00691b126a3c342a265f96fac98514f"
+    GIT_TAG "v0.3.29"
     DOWNLOAD_ONLY YES
 
 )
-CPMAddPackage(
-    NAME metatensor
-    GITHUB_REPOSITORY "metatensor/metatensor"
-    VERSION "0.7.3"
-    GIT_TAG "metatensor-torch-v0.7.3"
-    OPTIONS
-        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
-        "BUILD_SHARED_LIBS OFF"
-        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
-)
-
+#CPMAddPackage(
+#    NAME metatensor
+#    GITHUB_REPOSITORY "metatensor/metatensor"
+#    VERSION "0.7.3"
+#    GIT_TAG "metatensor-torch-v0.7.3"
+#    OPTIONS
+#        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
+#        "BUILD_SHARED_LIBS OFF"
+#        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
+#)
+#
 CPMAddPackage(
     NAME rascaline
     GITHUB_REPOSITORY "andreagrisafi/rascaline"
@@ -46,32 +46,26 @@ CPMAddPackage(
       "MDSPAN_USE_PAREN_OPERATOR 1"
       "MDSPAN_ENABLE_CONCEPTS ON"
 )
-message(STATUS "openblas source:${openblas_BINARY_DIR} cm ${OpenBLAS_INCLUDE_DIR}")
-
+message(STATUS "openblas source:${openblas_SOURCE_DIR}, Binary ${openblas_BINARY_DIR} include ${OpenBLAS_INCLUDE_DIR}")
+if (!${CMAKE_Fortran_COMPILER})
+    set(CMAKE_Fortran_COMPILER "gfortran")
+endif()
 if(openblas_ADDED)
     include(ExternalProject)
-    # Build openblas with LAPACK
     ExternalProject_Add(
       OpenBLAS
       SOURCE_DIR ${openblas_SOURCE_DIR}
-      CMAKE_ARGS
-        -GNinja
-        -DBUILD_SHARED_LIBS=OFF
-        -DBUILD_BENCHMARKS=OFF
-        -DBUILD_TESTING=OFF
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
-        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-        -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-        -DCMAKE_BUILD_TYPE=Release
-      BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib64/libopenblas.a
+      BUILD_IN_SOURCE ON
+      BUILD_COMMAND make FC=gfortran USE_OPENMP=1 -j16
+      INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
+      BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
       LOG_BUILD ON
     )
-
     # Create imported target
     add_library(openblas STATIC IMPORTED GLOBAL)
     add_dependencies(openblas OpenBLAS)
     set_target_properties(openblas PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib64/libopenblas.a
+        IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
     )
 
 endif()

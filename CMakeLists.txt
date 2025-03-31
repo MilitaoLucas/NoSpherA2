@@ -65,30 +65,37 @@ ExternalProject_Add(llvm_openmp
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/openmp
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
     CMAKE_ARGS
+    -GNinja
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
     -DCMAKE_BUILD_TYPE=Release
     -DLIBOMP_ENABLE_SHARED=OFF
+    -DLIBOMP_FORTRAN_MODULES=ON
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
-    -DLIBOMP_INSTALL_ALIASES=OFF
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
 )
 
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
-set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include/openblas)
-set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib64/libopenblas.a)
+set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include)
+set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
 
+set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
 include_directories(
     ${OPENMP_INCLUDE_DIR}
     ${OPENBLAS_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
+    ${MDSPAN_INCLUDE_DIR}
 #    ${CMAKE_CURRENT_SOURCE_DIR}/Lib
 )
 
 add_executable(NoSpherA2 ${SOURCE_FILES})
-add_dependencies(NoSpherA2 llvm_openmp openblas metatensor chemfiles)
+
+target_precompile_headers(NoSpherA2 PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/pch.h
+)
+add_dependencies(NoSpherA2 llvm_openmp OpenBLAS chemfiles)
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
@@ -105,9 +112,7 @@ target_compile_options(NoSpherA2 PRIVATE
     -fmessage-length=0
 )
 
-target_precompile_headers(NoSpherA2 PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/Src/pch.h
-)
+
 
 target_link_options(NoSpherA2 PRIVATE
     -static
@@ -116,16 +121,16 @@ target_link_options(NoSpherA2 PRIVATE
 )
 
 target_link_libraries(NoSpherA2 PRIVATE
-#    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
-#    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
-    metatensor::metatensor
-    rascaline::rascaline
+    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
+#    metatensor::metatensor
+#    rascaline::rascaline
     ${OPENMP_LIBRARY}
-    ${OPENBLAS_LIBRARY}
-    mdspan
+#    mdspan
     openblas
     -ldl
     -lpthread
+    -latomic
 )
 
 # Set output directories
