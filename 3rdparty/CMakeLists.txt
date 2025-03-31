@@ -31,14 +31,14 @@ CPMAddPackage(
 #CPMAddPackage(
 #    NAME metatensor
 #    GITHUB_REPOSITORY "metatensor/metatensor"
-#    VERSION "0.7.3"
-#    GIT_TAG "metatensor-torch-v0.7.3"
+#    VERSION "v0.1.12"
+#    GIT_TAG "metatensor-core-v0.1.12"
 #    OPTIONS
 #        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
 #        "BUILD_SHARED_LIBS OFF"
 #        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
 #)
-#
+
 CPMAddPackage(
     NAME rascaline
     GITHUB_REPOSITORY "andreagrisafi/rascaline"
@@ -49,16 +49,18 @@ CPMAddPackage(
         "BUILD_SHARED_LIBS OFF"
         "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
 )
-CPMAddPackage(
-    NAME chemfiles
-    GITHUB_REPOSITORY "chemfiles/chemfiles"
-    VERSION "0.10.4"
-    GIT_TAG "0.10.4"
-    OPTIONS
-        "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
-        "BUILD_SHARED_LIBS OFF"
-        "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
-)
+find_package(chemfiles QUIET)
+if(NOT chemfiles_FOUND)
+    CPMAddPackage(
+        NAME chemfiles
+        GITHUB_REPOSITORY "chemfiles/chemfiles"
+        VERSION "0.10.4"
+        GIT_TAG "0.10.4"
+        OPTIONS
+            "CMAKE_BUILD_TYPE release"
+            "BUILD_SHARED_LIBS OFF"
+    )
+endif()
 CPMAddPackage(
     NAME mdspan
     GITHUB_REPOSITORY "kokkos/mdspan"
