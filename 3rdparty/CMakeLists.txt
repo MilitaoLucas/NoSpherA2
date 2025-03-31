@@ -1,3 +1,25 @@
+include(ExternalProject)
+message(${CMAKE_CURRENT_BINARY_DIR}/openmp)
+ExternalProject_Add(llvm_openmp
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llvm-min/openmp
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openmp
+    CMAKE_ARGS
+    -GNinja
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+    -DCMAKE_BUILD_TYPE=Release
+    -DLIBOMP_ENABLE_SHARED=OFF
+    -DLIBOMP_FORTRAN_MODULES=ON
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/openmp
+    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
+)
+add_library(openmp INTERFACE IMPORTED GLOBAL)
+add_dependencies(openmp llvm_openmp)
+target_link_libraries(openmp INTERFACE openmp)
+target_include_directories(
+    openmp INTERFACE
+      ${CMAKE_CURRENT_BINARY_DIR}/openmp/include
+)
 CPMAddPackage(
     NAME openblas
     GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
@@ -47,7 +69,7 @@ CPMAddPackage(
       "MDSPAN_ENABLE_CONCEPTS ON"
 )
 message(STATUS "openblas source:${openblas_SOURCE_DIR}, Binary ${openblas_BINARY_DIR} include ${OpenBLAS_INCLUDE_DIR}")
-if (!${CMAKE_Fortran_COMPILER})
+if (NOT "${CMAKE_Fortran_COMPILER}")
     set(CMAKE_Fortran_COMPILER "gfortran")
 endif()
 if(openblas_ADDED)
@@ -57,7 +79,7 @@ if(openblas_ADDED)
       SOURCE_DIR ${openblas_SOURCE_DIR}
       DEPENDS openmp
       BUILD_IN_SOURCE ON
-      BUILD_COMMAND make FC=gfortran USE_OPENMP=1 -j
+      BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
       INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
       BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
       LOG_BUILD ON

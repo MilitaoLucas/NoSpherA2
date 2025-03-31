@@ -58,28 +58,7 @@ set(SOURCE_FILES
     Src/rys_roots.cpp
 )
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
-include(ExternalProject)
-message(${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp)
-ExternalProject_Add(llvm_openmp
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/llvm-min/openmp
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
-    CMAKE_ARGS
-    -GNinja
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-    -DCMAKE_BUILD_TYPE=Release
-    -DLIBOMP_ENABLE_SHARED=OFF
-    -DLIBOMP_FORTRAN_MODULES=ON
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
-    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
-)
-add_library(openmp INTERFACE IMPORTED GLOBAL)
-add_dependencies(openmp llvm_openmp)
-target_link_libraries(openmp INTERFACE openmp)
-target_include_directories(
-    openmp INTERFACE
-      ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include
-)
+
 
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
