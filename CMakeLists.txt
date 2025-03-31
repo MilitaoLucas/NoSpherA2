@@ -58,7 +58,6 @@ set(SOURCE_FILES
     Src/rys_roots.cpp
 )
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
-add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 include(ExternalProject)
 message(${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp)
 ExternalProject_Add(llvm_openmp
@@ -74,16 +73,24 @@ ExternalProject_Add(llvm_openmp
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
 )
+add_library(openmp INTERFACE IMPORTED GLOBAL)
+add_dependencies(openmp llvm_openmp)
+target_link_libraries(openmp INTERFACE openmp)
+target_include_directories(
+    openmp INTERFACE
+      ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include
+)
 
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
+add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include)
 set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
 
 set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
 include_directories(
-    ${OPENMP_INCLUDE_DIR}
+#    ${OPENMP_INCLUDE_DIR}
     ${OPENBLAS_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
     ${MDSPAN_INCLUDE_DIR}

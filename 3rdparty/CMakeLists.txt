@@ -55,15 +55,16 @@ if(openblas_ADDED)
     ExternalProject_Add(
       OpenBLAS
       SOURCE_DIR ${openblas_SOURCE_DIR}
+      DEPENDS openmp
       BUILD_IN_SOURCE ON
-      BUILD_COMMAND make FC=gfortran USE_OPENMP=1 -j16
+      BUILD_COMMAND make FC=gfortran USE_OPENMP=1 -j
       INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
       BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
       LOG_BUILD ON
     )
     # Create imported target
     add_library(openblas STATIC IMPORTED GLOBAL)
-    add_dependencies(openblas OpenBLAS)
+    add_dependencies(openblas OpenBLAS )
     set_target_properties(openblas PROPERTIES
         IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
     )
