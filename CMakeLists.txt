@@ -12,6 +12,7 @@ set(CMAKE_INSTALL_PREFIX $ENV{HOME})
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 if(WIN32)
   set(NAME "WINDOWS")
+  set(WINDOWS_BUILD ON)
 elseif(APPLE)
   set(NAME "MAC")
 elseif(UNIX)
@@ -59,7 +60,12 @@ set(SOURCE_FILES
 )
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 
-
+set(OPEN_MP_INCLUDE "-fopenmp")
+if(WIN32 OR WINDOWS_BUILD)
+    message("windows!!! link")
+    set(CMAKE_LINKER lld-link)
+    set(OPEN_MP_INCLUDE "-openmp")
+endif()
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
@@ -89,7 +95,7 @@ target_compile_definitions(NoSpherA2 PRIVATE
 target_compile_options(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:-g -Og>
     $<$<CONFIG:Release>:-O3>
-    -fopenmp
+    ${OPEN_MP_INCLUDE}
     -static
     -MMD
     -MP
@@ -110,6 +116,7 @@ else()
   set(LIB_ATOMIC "-latomic")
 endif()
 target_link_libraries(NoSpherA2 PRIVATE
+mdspan
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
     openblas
