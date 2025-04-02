@@ -103,7 +103,12 @@ target_link_options(NoSpherA2 PRIVATE
     -static-libgcc
     -static-libstdc++
 )
-
+if (${WINDOWS_BUILD})
+  message("DOING IT FOR WINDOWS")
+  set(LIB_ATOMIC "")
+else()
+  set(LIB_ATOMIC "-latomic")
+endif()
 target_link_libraries(NoSpherA2 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
@@ -111,7 +116,7 @@ target_link_libraries(NoSpherA2 PRIVATE
     ${OPENMP_LIBRARY}
     -ldl
     -lpthread
-    -latomic
+    ${LIB_ATOMIC}
 )
 
 # Set output directories
