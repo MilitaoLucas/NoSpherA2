@@ -1,31 +1,47 @@
 set(LIBOMP_ENABLE_SHARED OFF)
-if(WIN32 OR WINDOWS_BUILD)
+if(WIN32)
     set(LIBOMP_ENABLE_SHARED ON)
 endif()
 include(ExternalProject)
 message(${CMAKE_CURRENT_BINARY_DIR}/openmp)
-message("TEST WIN ASSEMBLY: ${CMAKE_ASM_MASM_COMPILER}")
-ExternalProject_Add(llvm_openmp
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llvm-min/openmp
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openmp
-    CMAKE_ARGS
-    -GNinja
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-    -DCMAKE_BUILD_TYPE=Release
-    -DLIBOMP_ENABLE_SHARED=${LIBOMP_ENABLE_SHARED}
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DCMAKE_ASM_MASM_COMPILER=${CMAKE_ASM_MASM_COMPILER}
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/openmp
-    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
-)
-add_library(openmp INTERFACE IMPORTED GLOBAL)
-add_dependencies(openmp llvm_openmp)
-target_link_libraries(openmp INTERFACE openmp)
-target_include_directories(
-    openmp INTERFACE
-      ${CMAKE_CURRENT_BINARY_DIR}/openmp/include
-)
+if (FROM_SOURCE_DEPENDENCIES)
+    ExternalProject_Add(llvm_openmp
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llvm-min/openmp
+        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openmp
+        CMAKE_ARGS
+        -GNinja
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_BUILD_TYPE=Release
+        -DLIBOMP_ENABLE_SHARED=${LIBOMP_ENABLE_SHARED}
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+        -DCMAKE_ASM_MASM_COMPILER=${CMAKE_ASM_MASM_COMPILER}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/openmp
+        BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
+    )
+    add_library(openmp INTERFACE IMPORTED GLOBAL)
+    add_dependencies(openmp llvm_openmp)
+    target_link_libraries(openmp INTERFACE openmp)
+    target_include_directories(
+        openmp INTERFACE
+          ${CMAKE_CURRENT_BINARY_DIR}/openmp/include
+    )
+else()
+    find_package(OpenMP)
+    if(NOT OpenMP_FOUND)
+        CPMAddPackage(
+            NAME chemfiles
+            GITHUB_REPOSITORY "chemfiles/chemfiles"
+            VERSION "0.10.4"
+            GIT_TAG "0.10.4"
+            OPTIONS
+                "CMAKE_BUILD_TYPE release"
+                "BUILD_SHARED_LIBS ON"
+                "CMAKE_C_FLAGS -Wno-error=implicit-function-declaration"
+                "CMAKE_CXX_FLAGS -Wno-error=implicit-function-declaration"
+        )
+    endif()
+endif()
 CPMAddPackage(
     NAME openblas
     GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
@@ -93,6 +109,14 @@ if (NOT "${CMAKE_Fortran_COMPILER}")
         set(CMAKE_Fortran_COMPILER "flang-new")
     endif()
 endif()
+if((WIN32 OR WINDOWS_BUILD))
+    set(BLAS_MAKE_PARS 'CC="x86_64-w64-mingw32-gcc -Bstatic" FC="x86_64-w64-mingw32-gfortran -static-libgfortran"
+      TARGET=HASWELL BINARY=${CMAKE_BUILD_PARALLEL_LEVEL} CROSS=1 NUM_THREADS=20 CONSISTENT_FPCSR=1 HOSTCC=gcc')
+else()
+    set(BLAS_MAKE_PARS FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j)
+    set(BLAS_BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
+    set(BLAS_INSTALL_COMMAND "INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas")
+endif()
 if(openblas_ADDED)
     include(ExternalProject)
     ExternalProject_Add(
@@ -100,18 +124,17 @@ if(openblas_ADDED)
       SOURCE_DIR ${openblas_SOURCE_DIR}
       DEPENDS openmp
       BUILD_IN_SOURCE ON
-      BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
-      INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
+      ${BLAS_INSTALL_COMMAND}
+      BUILD_COMMAND make ${BLAS_MAKE_PARS}
       BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
       LOG_BUILD ON
     )
     # Create imported target
     add_library(openblas STATIC IMPORTED GLOBAL)
-    add_dependencies(openblas OpenBLAS )
+    add_dependencies(openblas OpenBLAS)
     set_target_properties(openblas PROPERTIES
         IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
     )
-
 endif()
 
 
