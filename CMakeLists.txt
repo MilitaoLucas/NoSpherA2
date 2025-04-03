@@ -22,6 +22,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(BUILD_TESTING "Run tests" OFF)
     option(FROM_SOURCE_DEPENDENCIES "BUILD EVERY DEPENDENCY FROM SOURCE" OFF)
     option(WINDOWS_CROSS_COMPILE "CROSS COMPILING TO WINDOWS" OFF)
+    option(BUILD_OPENMP "Necessary if cross compiling from windows to Linux/Darwin" OFF)
 endif()
 if(WINDOWS_CROSS_COMPILE)
     if(FROM_SOURCE_DEPENDENCIES)
@@ -29,6 +30,10 @@ if(WINDOWS_CROSS_COMPILE)
     endif()
     set(FROM_SOURCE_DEPENDENCIES OFF)
 endif()
+if (FROM_SOURCE_DEPENDENCIES)
+    set(BUILD_OPENMP ON)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-unique-section-names")
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -74,7 +79,7 @@ if(WIN32 OR WINDOWS_CROSS_COMPILE)
     set(OPEN_MP_INCLUDE "-openmp")
 endif()
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
-set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
+#set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
 add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include)
@@ -82,7 +87,6 @@ set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenbl
 
 set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
 include_directories(
-    ${OPENBLAS_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
     ${MDSPAN_INCLUDE_DIR}
 )
@@ -92,12 +96,14 @@ add_executable(NoSpherA2 ${SOURCE_FILES})
 target_precompile_headers(NoSpherA2 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/pch.h
 )
-add_dependencies(NoSpherA2 llvm_openmp OpenBLAS chemfiles)
+add_dependencies(NoSpherA2 openblas chemfiles)
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
 )
-
+if(NOT BUILD_OPENMP)
+    set(OPENMP_LIBRARY "-fopenmp")
+endif ()
 
 target_compile_options(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:-g -Og>
@@ -123,7 +129,7 @@ else()
   set(LIB_ATOMIC "-latomic")
 endif()
 target_link_libraries(NoSpherA2 PRIVATE
-mdspan
+    mdspan
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
     openblas
