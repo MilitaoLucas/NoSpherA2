@@ -142,31 +142,45 @@ if (BUILD_OPENBLAS)
             set(CMAKE_Fortran_COMPILER "flang-new")
         endif()
     endif()
-    if((WIN32 OR WINDOWS_CROSS_COMPILE))
+    if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
         set(BLAS_MAKE_PARS 'CC="x86_64-w64-mingw32-gcc -Bstatic" FC="x86_64-w64-mingw32-gfortran -static-libgfortran"
           TARGET=HASWELL BINARY=${CMAKE_BUILD_PARALLEL_LEVEL} CROSS=1 NUM_THREADS=20 CONSISTENT_FPCSR=1 HOSTCC=gcc')
+        if(openblas_ADDED)
+            ExternalProject_Add(
+              OpenBLAS
+              SOURCE_DIR ${openblas_SOURCE_DIR}
+              DEPENDS openmp
+              BUILD_IN_SOURCE ON
+              INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
+              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
+              BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+              LOG_BUILD ON
+            )
+            # Create imported target
+            add_library(openblas STATIC IMPORTED GLOBAL)
+            add_dependencies(openblas OpenBLAS)
+            set_target_properties(openblas PROPERTIES
+                IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+            )
+        endif ()
     else()
-        set(BLAS_MAKE_PARS FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j)
-        set(BLAS_BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
-        set(BLAS_INSTALL_COMMAND "INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas")
-    endif()
-    if(openblas_ADDED)
-        include(ExternalProject)
         ExternalProject_Add(
-          OpenBLAS
-          SOURCE_DIR ${openblas_SOURCE_DIR}
-          DEPENDS openmp
-          BUILD_IN_SOURCE ON
-          ${BLAS_INSTALL_COMMAND}
-          BUILD_COMMAND make ${BLAS_MAKE_PARS}
-          BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-          LOG_BUILD ON
+            OpenBLAS
+            SOURCE_DIR ${openblas_SOURCE_DIR}
+            DEPENDS openmp
+            BUILD_IN_SOURCE ON
+            INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
+            BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
+            BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+            LOG_BUILD ON
         )
-        # Create imported target
-        add_library(openblas STATIC IMPORTED GLOBAL)
-        add_dependencies(openblas OpenBLAS)
-        set_target_properties(openblas PROPERTIES
-            IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-        )
-    endif ()
+            # Create imported target
+            add_library(openblas STATIC IMPORTED GLOBAL)
+            add_dependencies(openblas OpenBLAS)
+            set_target_properties(openblas PROPERTIES
+                IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+            )
+
+    endif()
+
 endif()

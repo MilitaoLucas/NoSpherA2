@@ -10,13 +10,6 @@ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(DEBUG_DIR ${CMAKE_SOURCE_DIR}/build_debug)
 set(CMAKE_INSTALL_PREFIX $ENV{HOME})
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
-if(WIN32)
-  set(NAME "WINDOWS")
-elseif(APPLE)
-  set(NAME "MAC")
-elseif(UNIX)
-  set(NAME "LINUX")
-endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(BUILD_TESTING "Run tests" OFF)
@@ -121,7 +114,6 @@ target_link_options(NoSpherA2 PRIVATE
     -static
     -static-libgcc
     -static-libstdc++
-  -lomp
 )
 if (${WINDOWS_CROSS_COMPILE} OR WIN32)
   message("DOING IT FOR WINDOWS" )
@@ -133,7 +125,7 @@ target_link_libraries(NoSpherA2 PRIVATE
     mdspan
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
-    -fopenmp  # or wherever your libomp is installed
+    -fopenmp
     openblas
     -ldl
     -lpthread
@@ -151,5 +143,4 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     message(STATUS "Running tests")
     enable_testing()
     add_subdirectory(tests)
-
 endif()
