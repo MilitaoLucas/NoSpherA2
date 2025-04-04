@@ -108,8 +108,8 @@ endif ()
 target_compile_options(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:-g -Og>
     $<$<CONFIG:Release>:-O3>
-    ${OPEN_MP_INCLUDE}
     -static
+    -fopenmp
     -MMD
     -MP
     -fmessage-length=0
@@ -121,6 +121,7 @@ target_link_options(NoSpherA2 PRIVATE
     -static
     -static-libgcc
     -static-libstdc++
+  -lomp
 )
 if (${WINDOWS_CROSS_COMPILE} OR WIN32)
   message("DOING IT FOR WINDOWS" )
@@ -132,8 +133,8 @@ target_link_libraries(NoSpherA2 PRIVATE
     mdspan
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
     ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
+    -fopenmp  # or wherever your libomp is installed
     openblas
-    ${OPENMP_LIBRARY}
     -ldl
     -lpthread
     ${LIB_ATOMIC}
