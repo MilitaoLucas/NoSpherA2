@@ -104,7 +104,7 @@ if(mdspan_ADDED)
 endif()
 
 message(STATUS "openblas source:${openblas_SOURCE_DIR}, Binary ${openblas_BINARY_DIR} include ${OpenBLAS_INCLUDE_DIR}")
-if (NOT FROM_SOURCE_DEPENDENCIES)
+if ((NOT FROM_SOURCE_DEPENDENCIES) AND (NOT BUILD_OPENBLAS))
     set(BUILD_OPENBLAS ON)
     find_package(OpenBLAS QUIET)
     if (NOT openblas_FOUND)
@@ -150,8 +150,6 @@ if (BUILD_OPENBLAS)
         endif()
     endif()
     if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
-        set(BLAS_MAKE_PARS 'CC="x86_64-w64-mingw32-gcc -Bstatic" FC="x86_64-w64-mingw32-gfortran -static-libgfortran"
-          TARGET=HASWELL BINARY=${CMAKE_BUILD_PARALLEL_LEVEL} CROSS=1 NUM_THREADS=20 CONSISTENT_FPCSR=1 HOSTCC=gcc')
         if(openblas_ADDED)
             ExternalProject_Add(
               OpenBLAS
@@ -169,6 +167,10 @@ if (BUILD_OPENBLAS)
             set_target_properties(openblas PROPERTIES
                 IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
             )
+            file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
+            set(OPENBLAS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas/include PARENT_SCOPE)
+            message(WARNING ${OPENBLAS_INCLUDE_DIR})
+            target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
         endif ()
     else()
         ExternalProject_Add(
@@ -186,7 +188,9 @@ if (BUILD_OPENBLAS)
             set_target_properties(openblas PROPERTIES
                 IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
             )
-
+            file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
+            set(OPENBLAS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas/include PARENT_SCOPE)
+            target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
     endif()
 endif()
 if (NOT FROM_SOURCE_DEPENDENCIES)

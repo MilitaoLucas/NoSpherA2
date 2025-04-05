@@ -67,6 +67,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(BUILD_OPENMP ON)
+    set(BUILD_OPENBLAS ON)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(OPENMP_LIBRARY_LOCATION openmp)
 endif ()
@@ -78,14 +79,14 @@ set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 #set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
 add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
-set(OPENBLAS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/include)
 set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
-
+message(WARNING "BLAS_INCLUD ${OPENBLAS_INCLUDE_DIR}")
 set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
     ${MDSPAN_INCLUDE_DIR}
     ${OPENMP_INCLUDE_DIR}
+    ${OPENBLAS_INCLUDE_DIR}
 )
 
 add_executable(NoSpherA2 ${SOURCE_FILES})
@@ -115,8 +116,6 @@ target_compile_options(NoSpherA2 PRIVATE
     -MP
     -fmessage-length=0
 )
-
-
 
 target_link_options(NoSpherA2 PRIVATE
     -static
