@@ -1,0 +1,3 @@
+#!/bin/bash
+sshpass -p "123456" rsync ./CMakeLists.txt Lucas@192.168.124.74:Desktop/NoSpherA2
+sshpass -p "123456" rsync ./3rdparty/CMakeLists.txt Lucas@192.168.124.74:Desktop/NoSpherA2/3rdparty

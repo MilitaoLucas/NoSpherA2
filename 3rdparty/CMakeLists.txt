@@ -6,7 +6,6 @@ if(WIN32)
     set(CMAKE_FIND_LIBRARY_SUFFIXES .lib)
     set(LIBOMP_ENABLE_SHARED ON)
 endif()
-find_package(PkgConfig REQUIRED)
 include(ExternalProject)
 message(${CMAKE_CURRENT_BINARY_DIR}/openmp)
 message(STATUS "BUILD ${BUILD_OPENMP}")
@@ -48,9 +47,9 @@ if (BUILD_OPENMP)
     )
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(OpenMP_CXX_FLAGS "-fopenmp")
+        set(OpenMP_CXX_FLAGS "-fopenmp" PARENT_SCOPE)
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(OpenMP_CXX_FLAGS "-fopenmp")
+        set(OpenMP_CXX_FLAGS "-fopenmp" PARENT_SCOPE)
     endif ()
 endif()
 
@@ -146,7 +145,7 @@ if (BUILD_OPENBLAS)
     if (NOT "${CMAKE_Fortran_COMPILER}")
         set(CMAKE_Fortran_COMPILER "gfortran")
         if (WINDOWS_CROSS_COMPILE)
-            set(CMAKE_Fortran_COMPILER "flang-new")
+            set(CMAKE_Fortran_COMPILER "gfortran")
         endif()
     endif()
     if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
@@ -157,7 +156,7 @@ if (BUILD_OPENBLAS)
               DEPENDS openmp
               BUILD_IN_SOURCE ON
               INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
-              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
+              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} -j
               BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
               LOG_BUILD ON
             )

@@ -76,7 +76,6 @@ if(WIN32 OR WINDOWS_CROSS_COMPILE)
     set(CMAKE_LINKER lld-link)
 endif()
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
-#set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
 
 add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
 set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
@@ -133,9 +132,7 @@ target_link_libraries(NoSpherA2 PRIVATE
     mdspan
     metatensor
     rascaline
-#    ${OPENMP_LIBRARY_FLAG}
     ${OpenMP_CXX_FLAGS}
-#    openmp
     openblas
     -ldl
     -lpthread
