@@ -13,14 +13,16 @@ message(STATUS "BUILD ${BUILD_OPENMP}")
 if (NOT BUILD_OPENMP)
     find_package(OpenMP QUIET)
     if (OpenMP_FOUND)
-        message(STATUS "${OpenMP_INCLUDE_DIRS}")
+        message(WARNING ${OpenMP_omp_LIBRARY})
+        message(WARNING ${OpenMP_CXX_FLAGS})
         add_library(openmp INTERFACE IMPORTED GLOBAL)
         add_dependencies(openmp OpenMP)
         target_link_libraries(openmp INTERFACE openmp)
     else()
-        set(BUILD_OPENMP OFF)
+        set(BUILD_OPENMP ON)
     endif()
 endif ()
+message(STATUS "BUILD OPENMP: ${BUILD_OPENMP}")
 if (BUILD_OPENMP)
     ExternalProject_Add(llvm_openmp
         SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llvm-min/openmp
@@ -34,8 +36,9 @@ if (BUILD_OPENMP)
             -DLIBOMP_FORTRAN_MODULES=ON
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/openmp
 
-        BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libgomp.a
+        BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libomp.a
     )
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/openmp/include)
     add_library(openmp INTERFACE IMPORTED GLOBAL)
     add_dependencies(openmp llvm_openmp)
     target_link_libraries(openmp INTERFACE openmp)
@@ -43,6 +46,12 @@ if (BUILD_OPENMP)
         openmp INTERFACE
           ${CMAKE_CURRENT_BINARY_DIR}/openmp/include
     )
+
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(OpenMP_CXX_FLAGS "-fopenmp")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(OpenMP_CXX_FLAGS "-fopenmp")
+    endif ()
 endif()
 
 
@@ -50,11 +59,9 @@ if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
     find_package(chemfiles QUIET)
     if(NOT chemfiles_FOUND)
         if (NOT FROM_SOURCE_DEPENDENCIES)
-
             CPMAddPackage(
                 NAME chemfiles
                 VERSION "0.10.4"
-                GIT_TAG "0.10.4"
                 URL "https://github.com/chemfiles/chemfiles-prebuilt/releases/download/v0.10.4/chemfiles-static.v0.10.4.x86_64-linux-gnu.tar.gz"
             )
             if (chemfiles_ADDED)
@@ -166,14 +173,13 @@ if (BUILD_OPENBLAS)
     else()
         ExternalProject_Add(
             OpenBLAS
-            SOURCE_DIR ${openblas_SOURCE_DIR}
-            DEPENDS openmp
-            BUILD_IN_SOURCE ON
-            INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
-            BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
-            BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-            LOG_BUILD ON
-        )
+              SOURCE_DIR ${openblas_SOURCE_DIR}
+              BUILD_IN_SOURCE ON
+              INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
+              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
+              BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+              LOG_BUILD ON
+            )
             # Create imported target
             add_library(openblas STATIC IMPORTED GLOBAL)
             add_dependencies(openblas OpenBLAS)
@@ -182,5 +188,42 @@ if (BUILD_OPENBLAS)
             )
 
     endif()
-
 endif()
+if (NOT FROM_SOURCE_DEPENDENCIES)
+    if (WIN32)
+        set(METATENSOR_LIB metatensor.lib)
+    elseif (DARWIN)
+        set(METATENSOR_LIB libmetatensor_Mac.a)
+    else ()
+        set(METATENSOR_LIB libmetatensor.a)
+    endif ()
+    add_library(metatensor STATIC IMPORTED GLOBAL)
+    set_target_properties(metatensor PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Lib/${METATENSOR_LIB}
+    )
+else ()
+    CPMAddPackage(
+        NAME metatensor
+        GITHUB_REPOSITORY "metatensor/metatensor"
+        VERSION "v0.1.12"
+        GIT_TAG "metatensor-core-v0.1.12"
+        OPTIONS
+            "CMAKE_BUILD_TYPE Release"
+            "BUILD_SHARED_LIBS OFF"
+            "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
+    )
+endif ()
+
+# As rascaline was renamed, for now there will be no option to build from source
+# For now, as rascaline header files are in the Src directory, I will just add the imported location
+if (WIN32)
+    set(RASCALINE_LIB rascaline.lib)
+elseif (DARWIN)
+    set(RASCALINE_LIB librascaline_mac.a)
+else ()
+    set(RASCALINE_LIB librascaline.a)
+endif ()
+add_library(rascaline STATIC IMPORTED GLOBAL)
+set_target_properties(rascaline PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Lib/${RASCALINE_LIB}
+)

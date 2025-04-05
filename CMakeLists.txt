@@ -65,11 +65,14 @@ set(SOURCE_FILES
 )
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 
-set(OPEN_MP_INCLUDE "-fopenmp")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(BUILD_OPENMP ON)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(OPENMP_LIBRARY_LOCATION openmp)
+endif ()
 if(WIN32 OR WINDOWS_CROSS_COMPILE)
     message("windows!!! link")
     set(CMAKE_LINKER lld-link)
-    set(OPEN_MP_INCLUDE "-openmp")
 endif()
 set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
 #set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/src/llvm_openmp-build/runtime/src/libgomp.a)
@@ -82,6 +85,7 @@ set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
     ${MDSPAN_INCLUDE_DIR}
+    ${OPENMP_INCLUDE_DIR}
 )
 
 add_executable(NoSpherA2 ${SOURCE_FILES})
@@ -89,20 +93,24 @@ add_executable(NoSpherA2 ${SOURCE_FILES})
 target_precompile_headers(NoSpherA2 PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/pch.h
 )
-add_dependencies(NoSpherA2 openblas chemfiles)
+if(BLAS_FOUND)
+    set(LIB_BLAS BLAS::BLAS)
+else ()
+    set(LIB_BLAS openblas)
+endif ()
+
+add_dependencies(NoSpherA2 openmp openblas chemfiles)
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
 )
-if(NOT BUILD_OPENMP)
-    set(OPENMP_LIBRARY "-fopenmp")
-endif ()
 
+message(WARNING ${OpenMP_CXX_FLAGS})
 target_compile_options(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:-g -Og>
     $<$<CONFIG:Release>:-O3>
     -static
-    -fopenmp
+    ${OpenMP_CXX_FLAGS}
     -MMD
     -MP
     -fmessage-length=0
@@ -121,11 +129,14 @@ if (${WINDOWS_CROSS_COMPILE} OR WIN32)
 else()
   set(LIB_ATOMIC "-latomic")
 endif()
+
 target_link_libraries(NoSpherA2 PRIVATE
     mdspan
-    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/libmetatensor.a
-    ${CMAKE_CURRENT_SOURCE_DIR}/Lib/librascaline.a
-    -fopenmp
+    metatensor
+    rascaline
+#    ${OPENMP_LIBRARY_FLAG}
+    ${OpenMP_CXX_FLAGS}
+#    openmp
     openblas
     -ldl
     -lpthread
