@@ -140,13 +140,7 @@ if ((NOT FROM_SOURCE_DEPENDENCIES) AND (NOT BUILD_OPENBLAS))
 endif ()
 
 if (BUILD_OPENBLAS)
-    CPMAddPackage(
-        NAME openblas
-        GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
-        VERSION "0.3.29"
-        GIT_TAG "v0.3.29"
-        DOWNLOAD_ONLY YES
-    )
+
 
     if (NOT "${CMAKE_Fortran_COMPILER}")
         set(CMAKE_Fortran_COMPILER "gfortran")
@@ -155,6 +149,13 @@ if (BUILD_OPENBLAS)
         endif()
     endif()
     if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
+        CPMAddPackage(
+            NAME openblas
+            GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
+            VERSION "0.3.29"
+            GIT_TAG "v0.3.29"
+            DOWNLOAD_ONLY YES
+        )
         message(WARNING "159")
         if(openblas_ADDED)
             ExternalProject_Add(
@@ -180,23 +181,34 @@ if (BUILD_OPENBLAS)
             target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
         endif ()
     else()
-        ExternalProject_Add(
-            OpenBLAS
-            SOURCE_DIR ${openblas_SOURCE_DIR}
-            BUILD_IN_SOURCE ON
-
-            CMAKE_ARGS
-                -GNinja
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_BUILD_TYPE=Release
-                -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/openblas
-                -DNOFORTRAN=ON
-            INSTALL_COMMAND ninja install
-            BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-            LOG_BUILD ON
-
+        set(BLAS_LAPACK_HEADERS
+          cblas.h
+          f77blas.h
+          lapack.h
+          lapacke.h
+          lapacke_config.h
+          lapacke_mangling.h
+          lapacke_utils.h
+          openblas_config.h
         )
+        CPMAddPackage(
+            NAME OpenBLAS
+            GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
+            VERSION "0.3.29"
+            GIT_TAG "v0.3.29"
+            OPTIONS
+                "G Visual Studio 17 2022"
+                "CMAKE_BUILD_TYPE Release"
+                "NOFORTRAN OFF"
+        )
+        set(DESTINATION_INCLUDE_DIR "${CMAKE_BINARY_DIR}/3rdparty/openblas/include")
+        file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
+        message(WARNING "SOURCE DIR: ${openblas_SOURCE_DIR}")
+        foreach(HEADER_FILE IN LISTS BLAS_LAPACK_HEADERS)
+            file(COPY "${openblas_SOURCE_DIR}/${HEADER_FILE}"
+                DESTINATION "${DESTINATION_INCLUDE_DIR}"
+            )
+        endforeach()
         # Create imported target
         add_library(openblas STATIC IMPORTED GLOBAL)
         add_dependencies(openblas OpenBLAS)
