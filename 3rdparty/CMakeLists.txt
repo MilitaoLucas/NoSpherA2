@@ -12,17 +12,20 @@ message(STATUS "BUILD ${BUILD_OPENMP}")
 if (NOT BUILD_OPENMP)
     find_package(OpenMP QUIET)
     if (OpenMP_FOUND)
-        message(WARNING ${OpenMP_omp_LIBRARY})
-        message(WARNING ${OpenMP_CXX_FLAGS})
+        message(STATUS "Using system OpenMP: ${OpenMP_gomp_LIBRARY}")
+        message(STATUS "OpenMP flags: ${OpenMP_CXX_FLAGS}")
+        message(STATUS "OpenMP CXX LIBRARY: ${OpenMP_CXX_LIBRARIES}")
         add_library(openmp INTERFACE IMPORTED GLOBAL)
         add_dependencies(openmp OpenMP)
-        target_link_libraries(openmp INTERFACE openmp)
+        target_compile_options(openmp INTERFACE ${OpenMP_CXX_FLAGS})
+        target_link_libraries(openmp INTERFACE ${OpenMP_omp_LIBRARY})
+        set(OPENMP_LIBRARY ${OpenMP_gomp_LIBRARY} PARENT_SCOPE)
     else()
         set(BUILD_OPENMP ON)
     endif()
 endif ()
 message(STATUS "BUILD OPENMP: ${BUILD_OPENMP}")
-if (BUILD_OPENMP)
+if (BUILD_OPENMP AND (NOT WIN32))
     ExternalProject_Add(llvm_openmp
         SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llvm-min/openmp
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openmp
@@ -45,15 +48,18 @@ if (BUILD_OPENMP)
         openmp INTERFACE
           ${CMAKE_CURRENT_BINARY_DIR}/openmp/include
     )
-
+    set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libomp.a PARENT_SCOPE)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(OpenMP_CXX_FLAGS "-fopenmp" PARENT_SCOPE)
+        set(OpenMP_CXX_FLAGS "-fopenmp=libomp" PARENT_SCOPE)
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         set(OpenMP_CXX_FLAGS "-fopenmp" PARENT_SCOPE)
     endif ()
+
 endif()
 
-
+if (WIN32 OR WINDOWS_CROSS_COMPILE)
+    set(OpenMP_CXX_FLAGS "" PARENT_SCOPE)
+endif ()
 if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
     find_package(chemfiles QUIET)
     if(NOT chemfiles_FOUND)
@@ -149,14 +155,16 @@ if (BUILD_OPENBLAS)
         endif()
     endif()
     if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
+        message(WARNING "159")
         if(openblas_ADDED)
             ExternalProject_Add(
               OpenBLAS
               SOURCE_DIR ${openblas_SOURCE_DIR}
               DEPENDS openmp
               BUILD_IN_SOURCE ON
+              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
               INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
-              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} -j
+
               BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
               LOG_BUILD ON
             )
@@ -174,22 +182,30 @@ if (BUILD_OPENBLAS)
     else()
         ExternalProject_Add(
             OpenBLAS
-              SOURCE_DIR ${openblas_SOURCE_DIR}
-              BUILD_IN_SOURCE ON
-              INSTALL_COMMAND make install PREFIX=${CMAKE_BINARY_DIR}/3rdparty/openblas
-              BUILD_COMMAND make FC=${CMAKE_Fortran_COMPILER} USE_OPENMP=1 -j
-              BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-              LOG_BUILD ON
-            )
-            # Create imported target
-            add_library(openblas STATIC IMPORTED GLOBAL)
-            add_dependencies(openblas OpenBLAS)
-            set_target_properties(openblas PROPERTIES
-                IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-            )
-            file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
-            set(OPENBLAS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas/include PARENT_SCOPE)
-            target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
+            SOURCE_DIR ${openblas_SOURCE_DIR}
+            BUILD_IN_SOURCE ON
+
+            CMAKE_ARGS
+                -GNinja
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_BUILD_TYPE=Release
+                -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/openblas
+                -DNOFORTRAN=ON
+            INSTALL_COMMAND ninja install
+            BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+            LOG_BUILD ON
+
+        )
+        # Create imported target
+        add_library(openblas STATIC IMPORTED GLOBAL)
+        add_dependencies(openblas OpenBLAS)
+        set_target_properties(openblas PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
+        )
+        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
+        set(OPENBLAS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas/include PARENT_SCOPE)
+        target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
     endif()
 endif()
 if (NOT FROM_SOURCE_DEPENDENCIES)

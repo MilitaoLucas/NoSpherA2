@@ -98,19 +98,31 @@ if(BLAS_FOUND)
 else ()
     set(LIB_BLAS openblas)
 endif ()
-
-add_dependencies(NoSpherA2 openmp openblas chemfiles)
+if (TARGET openmp)
+    message(WARNING "branch openmp")
+    add_dependencies(NoSpherA2 openmp openblas chemfiles)
+else ()
+    add_dependencies(NoSpherA2 openblas chemfiles)
+endif ()
 target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
 )
 
 message(WARNING ${OpenMP_CXX_FLAGS})
+if (${WINDOWS_CROSS_COMPILE} OR WIN32)
+    message("DOING IT FOR WINDOWS" )
+    set(LIB_ATOMIC "")
+    set(OPENMP_FLAG "-openmp")
+else()
+    set(LIB_ATOMIC "-latomic")
+    set(OPENMP_FLAG "-fopenmp")
+endif()
 target_compile_options(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:-g -Og>
     $<$<CONFIG:Release>:-O3>
+    ${OPENMP_FLAG}
     -static
-    ${OpenMP_CXX_FLAGS}
     -MMD
     -MP
     -fmessage-length=0
@@ -121,25 +133,20 @@ target_link_options(NoSpherA2 PRIVATE
     -static-libgcc
     -static-libstdc++
 )
-if (${WINDOWS_CROSS_COMPILE} OR WIN32)
-  message("DOING IT FOR WINDOWS" )
-  set(LIB_ATOMIC "")
-else()
-  set(LIB_ATOMIC "-latomic")
-endif()
+
 
 target_link_libraries(NoSpherA2 PRIVATE
     mdspan
     metatensor
     rascaline
-    ${OpenMP_CXX_FLAGS}
     openblas
+    ${OPENMP_LIBRARY}
     -ldl
     -lpthread
     ${LIB_ATOMIC}
 )
+message(WARNING ${OPENMP_LIBRARY})
 
-# Set output directories
 set_target_properties(NoSpherA2 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}
