@@ -156,7 +156,8 @@ if (BUILD_OPENBLAS)
             GIT_TAG "v0.3.29"
             DOWNLOAD_ONLY YES
         )
-        message(WARNING "159")
+        set(BLAS_LAPACK_SOURCE_DIR "${_CPM_DEPENDENCY_openblas_SOURCE_DIR}")
+        message(WARNING "BLAS_SOURC_DIR ${BLAS_LAPACK_SOURCE_DIR}")
         if(openblas_ADDED)
             ExternalProject_Add(
               OpenBLAS
@@ -179,6 +180,12 @@ if (BUILD_OPENBLAS)
             set(OPENBLAS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas/include PARENT_SCOPE)
             message(WARNING ${OPENBLAS_INCLUDE_DIR})
             target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
+
+            set(DESTINATION_INCLUDE_DIR "${CMAKE_BINARY_DIR}/3rdparty/openblas/include")
+            set(openblas_SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/openblas-src)
+
+            message(WARNING "SOURCE DIR: ${openblas_SOURCE_DIR}")
+            file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
         endif ()
     else()
         set(BLAS_LAPACK_HEADERS
@@ -191,33 +198,32 @@ if (BUILD_OPENBLAS)
           lapacke_utils.h
           openblas_config.h
         )
+        set(DESTINATION_INCLUDE_DIR "${CMAKE_BINARY_DIR}/3rdparty/openblas/include")
+        set(openblas_SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/openblas-src)
         CPMAddPackage(
             NAME OpenBLAS
             GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
             VERSION "0.3.29"
             GIT_TAG "v0.3.29"
+            SOURCE_DIR ${openblas_SOURCE_DIR}
             OPTIONS
                 "G Visual Studio 17 2022"
                 "CMAKE_BUILD_TYPE Release"
                 "NOFORTRAN OFF"
+            HEADER_DIRS include
         )
-        set(DESTINATION_INCLUDE_DIR "${CMAKE_BINARY_DIR}/3rdparty/openblas/include")
-        file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
         message(WARNING "SOURCE DIR: ${openblas_SOURCE_DIR}")
-        foreach(HEADER_FILE IN LISTS BLAS_LAPACK_HEADERS)
-            file(COPY "${openblas_SOURCE_DIR}/${HEADER_FILE}"
-                DESTINATION "${DESTINATION_INCLUDE_DIR}"
-            )
+        message(WARNING "DESTINATION DIR: ${DESTINATION_INCLUDE_DIR}")
+        file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
+        file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/CBLAS/include/"
+             DESTINATION "${DESTINATION_INCLUDE_DIR}")
+        file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/LAPACKE/include/"
+             DESTINATION "${DESTINATION_INCLUDE_DIR}")
+        file(GLOB OPENBLAS_HEADER_FILES "${openblas_SOURCE_DIR}/*.h")
+        foreach(HEADER_FILE ${OPENBLAS_HEADER_FILES})
+            file(COPY "${HEADER_FILE}" DESTINATION "${DESTINATION_INCLUDE_DIR}")
         endforeach()
-        # Create imported target
-        add_library(openblas STATIC IMPORTED GLOBAL)
-        add_dependencies(openblas OpenBLAS)
-        set_target_properties(openblas PROPERTIES
-            IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a
-        )
-        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
-        set(OPENBLAS_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas/include PARENT_SCOPE)
-        target_include_directories(openblas INTERFACE ${CMAKE_BINARY_DIR}/3rdparty/openblas/include)
+        set(OPENBLAS_INCLUDE_DIR ${DESTINATION_INCLUDE_DIR} PARENT_SCOPE)
     endif()
 endif()
 if (NOT FROM_SOURCE_DEPENDENCIES)
