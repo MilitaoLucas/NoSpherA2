@@ -219,7 +219,7 @@ if (BUILD_OPENBLAS)
              DESTINATION "${DESTINATION_INCLUDE_DIR}")
         file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/LAPACKE/include/"
              DESTINATION "${DESTINATION_INCLUDE_DIR}")
-#        file(COPY "${openblas_SOURCE_DIR}/openblas_config.h" DESTINATION "${DESTINATION_INCLUDE_DIR}")
+        file(COPY "${openblas_SOURCE_DIR}/cblas.h" DESTINATION "${DESTINATION_INCLUDE_DIR}") # THIS IS NEEDED TO BE AFTER THE ABOVE
         set(OPENBLAS_INCLUDE_DIR ${DESTINATION_INCLUDE_DIR} PARENT_SCOPE)
     endif()
 endif()
