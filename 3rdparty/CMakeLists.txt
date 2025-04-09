@@ -214,12 +214,6 @@ if (BUILD_OPENBLAS)
         )
         message(WARNING "SOURCE DIR: ${openblas_SOURCE_DIR}")
         message(WARNING "DESTINATION DIR: ${DESTINATION_INCLUDE_DIR}")
-        file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
-        file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/CBLAS/include/"
-             DESTINATION "${DESTINATION_INCLUDE_DIR}")
-        file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/LAPACKE/include/"
-             DESTINATION "${DESTINATION_INCLUDE_DIR}")
-        file(COPY "${openblas_SOURCE_DIR}/cblas.h" DESTINATION "${DESTINATION_INCLUDE_DIR}") # THIS IS NEEDED TO BE AFTER THE ABOVE
         set(OPENBLAS_INCLUDE_DIR ${DESTINATION_INCLUDE_DIR} PARENT_SCOPE)
     endif()
 endif()
