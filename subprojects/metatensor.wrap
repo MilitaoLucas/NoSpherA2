@@ -1,0 +1,18 @@
+#[wrap-file]
+#directory = metatensor-core-cxx-0.1.12
+#source_url = https://github.com/metatensor/metatensor/releases/download/metatensor-core-v0.1.12/metatensor-core-cxx-0.1.12.tar.gz
+#source_filename = metatensor-core-cxx-0.1.12.tar.gz
+#source_hash = dfcaf9a878620c1bfb30437e2f41f023c458ab44543282f4def75972c95b4729
+#patch_directory = metatensor
+
+#[provide]
+#metatensor = metatensor_dep
+[wrap-git]
+url = https://github.com/metatensor/metatensor.git
+revision = 51a686dd0d64f37b7f8648fea91374ca2aff2cfd
+directory = metatensor-core-cxx-0.1.12
+
+[provide]
+dependency_names = metatensor
+cmake = metatensor
+# Meson will look for the metatensor CMake target provided by the project [cite: 9]

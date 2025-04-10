@@ -48,9 +48,27 @@ src_files = [
 # Dependencies
 openmp_dep = dependency('openmp', required : true, static: true)
 #openblas_dep = dependency('openblas', static : true)
-metatensor_dep = dependency('metatensor')
 
+metatensor_dep = dependency('metatensor', required: false)
+if not metatensor_dep.found()
+  cmake = import('cmake')
+  sub_proj = cmake.subproject(
+    'metatensor',
+    # Set option for static library as you wanted
+    cmake_options: ['-DBUILD_SHARED_LIBS=OFF']
+  )
 
+  # --- Add this line ---
+  message('CMake targets found by Meson:\n - ' + '\n - '.join(sub_proj.target_list()))
+  # ---------------------
+
+  cargo_target = sub_proj.target('cargo-build-metatensor')
+  inc_dir = include_directories(join_paths('subprojects', 'metatensor-core-cxx-0.1.12', '__CMake_build', 'include'))
+  metatensor_dep = declare_dependency(
+    include_directories: inc_dir,
+    link_with : cargo_target
+  )
+endif
 # Build executable
 executable('NoSpherA2',
            src_files,
