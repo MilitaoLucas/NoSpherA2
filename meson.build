@@ -47,14 +47,16 @@ src_files = [
 
 # Dependencies
 openmp_dep = dependency('openmp', required : true, static: true)
-openblas_dep = dependency('openblas')
+#openblas_dep = dependency('openblas', static : true)
+metatensor_dep = dependency('metatensor')
 
 
 # Build executable
 executable('NoSpherA2',
            src_files,
            include_directories : inc_dirs,
-           dependencies : [openmp_dep, openblas_dep],
+           dependencies : [openmp_dep, metatensor_dep],
+           #dependencies : [openmp_dep, openblas_dep, metatensor_dep],
            install : true)
 
 # Tests
