@@ -1,8 +1,8 @@
-project('NospherA2', 'cpp',
-        default_options : ['warning_level=3',
-                           'cpp_std=c++17', 
-                           'default_library=static']
-        )
+project(
+  'NospherA2',
+  'cpp',
+  default_options: ['warning_level=3', 'cpp_std=c++17', 'default_library=static'],
+)
 
 inc_dirs = include_directories('Src')
 
@@ -17,7 +17,6 @@ src_files = [
   'Src/cube.cpp',
   'Src/ECPs_corrections.cpp',
   'Src/fchk.cpp',
-  'Src/hdf5.cpp',
   'Src/int_g2e.cpp',
   'Src/int_optimizer.cpp',
   'Src/integration_params.cpp',
@@ -42,22 +41,24 @@ src_files = [
   'Src/spherical_density.cpp',
   'Src/unity.cpp',
   'Src/vec_nos_math.cpp',
-  'Src/wfn_class.cpp'
+  'Src/wfn_class.cpp',
 ]
 
 # Dependencies
-openmp_dep = dependency('openmp', required : true, static: true)
-openblas_dep = dependency('openblas', static : true)
-lapacke_dep = dependency('lapacke', static : true)
-metatensor_dep = dependency('metatensor', static : true)
+openmp_dep = dependency('openmp', required: true, static: true)
+openblas_dep = dependency('openblas', static: true)
+lapacke_dep = dependency('lapacke', static: true)
+metatensor_dep = dependency('metatensor', static: true)
+mdspan_dep = dependency('mdspan', static: true)
 # Build executable
-executable('NoSpherA2',
-           src_files,
-           include_directories : inc_dirs,
-           #dependencies : [openmp_dep, metatensor_dep],
-           dependencies : [openmp_dep, openblas_dep, lapacke_dep, metatensor_dep],
-           install : true)
-
+executable(
+  'NoSpherA2',
+  src_files,
+  include_directories: inc_dirs,
+  #dependencies : [openmp_dep, metatensor_dep],
+  dependencies: [openmp_dep, openblas_dep, lapacke_dep, metatensor_dep, mdspan_dep],
+  install: true,
+)
 # Tests
 # test_exe = executable('test_nosphera2', 'tests/main.cpp',
 #                      include_directories : inc_dirs)

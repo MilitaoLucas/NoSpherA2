@@ -31,9 +31,7 @@
 # _cblas3 -- Single precision complex BLAS3 routines
 
 # _allblas -- Auxiliary routines for Level 2 and 3 BLAS
-_allblas = static_library('_allblas',
-                   sources: [ 'lsame.f', 'xerbla.f', 'xerbla_array.f' ])
-
+_allblas = static_library('_allblas', sources: ['lsame.f', 'xerbla.f', 'xerbla_array.f'])
 
 # All other sources
 _blas_netlib_srcs = []
@@ -652,7 +650,7 @@ _zsources = [
   'lapacke_cupgtr.c',
   'lapacke_cupgtr_work.c',
   'lapacke_cupmtr.c',
-  'lapacke_cupmtr_work.c'
+  'lapacke_cupmtr_work.c',
 ]
 
 # _zblas1 -- Double precision complex BLAS 1 routines
@@ -1226,7 +1224,7 @@ _zblas1 = [
   'lapacke_dtrttp.c',
   'lapacke_dtrttp_work.c',
   'lapacke_dtzrzf.c',
-  'lapacke_dtzrzf_work.c'
+  'lapacke_dtzrzf_work.c',
 ]
 
 _ssources = [
@@ -1797,7 +1795,7 @@ _ssources = [
   'lapacke_strttp.c',
   'lapacke_strttp_work.c',
   'lapacke_stzrzf.c',
-  'lapacke_stzrzf_work.c'
+  'lapacke_stzrzf_work.c',
 ]
 
 _csources4 = [
@@ -2491,7 +2489,7 @@ _esources = [
   'lapacke_dsysvxx_work.c',
   'lapacke_sposvxx_work.c',
   'lapacke_zgesvxx_work.c',
-  'lapacke_zsysvxx_work.c'
+  'lapacke_zsysvxx_work.c',
 ]
 
 _msources = [
@@ -2522,28 +2520,16 @@ _msources = [
   'lapacke_slagsy.c',
   'lapacke_slagsy_work.c',
   'lapacke_zlagsy.c',
-  'lapacke_zlagsy_work.c'
+  'lapacke_zlagsy_work.c',
 ]
-# Start making the blas target
-if prec == 'c' or build_complex or build_all_prec
-  _blas_netlib_srcs += _cblas1 + _cb1aux + _cblas2 + _cblas3
-endif
 
-if prec == 'z' or build_complex16 or build_all_prec
-  _blas_netlib_srcs += _zblas1 + _zb1aux + _zblas2 + _zblas3
-endif
-
-if prec == 'd' or build_double or build_all_prec
-  _blas_netlib_srcs += _dblas1 + _dblas2 + _dblas3
-endif
-
-if prec == 's' or build_single or build_all_prec
-  _blas_netlib_srcs += _sblas1 + _sblas2 + _sblas3
-endif
+_blas_netlib_srcs = _zsources + _zblas1 + _ssources + _csources4 + _esources + _msources
 
 # Create the blas library
-netlib_blas = library(_netlib_blas_name,
-               sources: _blas_netlib_srcs,
-               link_with: _allblas,
-               install: true,
-               kwargs: lapack_version_kwargs)
+netlib_blas = library(
+  _netlib_blas_name,
+  sources: _blas_netlib_srcs,
+  link_with: _allblas,
+  install: true,
+  kwargs: lapack_version_kwargs,
+)
