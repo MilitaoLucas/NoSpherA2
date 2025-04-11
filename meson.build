@@ -1,7 +1,7 @@
 project(
   'NospherA2',
   'cpp',
-  default_options: ['warning_level=3', 'cpp_std=c++17', 'default_library=static'],
+  default_options: ['warning_level=3', 'cpp_std=c++23', 'default_library=static'],
 )
 
 inc_dirs = include_directories('Src')
