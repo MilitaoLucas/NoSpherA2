@@ -1,0 +1,30 @@
+option(
+  'LAPACKE_BUILD_SINGLE',
+  type: 'boolean',
+  value: true,
+  description: 'Build LAPACKE single precision real',
+)
+option(
+  'LAPACKE_BUILD_DOUBLE',
+  type: 'boolean',
+  value: true,
+  description: 'Build LAPACKE double precision real',
+)
+option(
+  'LAPACKE_BUILD_COMPLEX',
+  type: 'boolean',
+  value: true,
+  description: 'Build LAPACKE single precision complex',
+)
+option(
+  'LAPACKE_BUILD_COMPLEX16',
+  type: 'boolean',
+  value: true,
+  description: 'Build LAPACKE double precision complex',
+)
+option(
+  'tests',
+  type: 'boolean',
+  value: false,
+  description: 'whether or not tests should be built',
+)

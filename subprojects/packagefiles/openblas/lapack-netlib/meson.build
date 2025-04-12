@@ -31,4 +31,3 @@ use_xblas = get_option('use_xblas')
 subdir('BLAS') # Defines netlib_blas and _allblas
 subdir('INSTALL') # Defines _install_aux and _int_cpu_time
 subdir('SRC') # Defines netlib_lapack
-subdir('LAPACKE')

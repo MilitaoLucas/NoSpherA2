@@ -7,4 +7,3 @@ patch_directory = openblas
 
 [provide]
 openblas = openblas_dep
-lapacke = netlib_lapack_dep

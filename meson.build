@@ -47,16 +47,17 @@ src_files = [
 # Dependencies
 openmp_dep = dependency('openmp', required: true, static: true)
 openblas_dep = dependency('openblas', static: true)
-lapacke_dep = dependency('lapacke', static: true)
+#lapacke_dep = dependency('lapacke', static: true)
 metatensor_dep = dependency('metatensor', static: true)
 mdspan_dep = dependency('mdspan', static: true)
+rascaline_dep = dependency('rascaline', fallback: ['rascaline', 'rascaline_dep'])
 # Build executable
 executable(
   'NoSpherA2',
   src_files,
   include_directories: inc_dirs,
   #dependencies : [openmp_dep, metatensor_dep],
-  dependencies: [openmp_dep, openblas_dep, lapacke_dep, metatensor_dep, mdspan_dep],
+  dependencies: [openmp_dep, openblas_dep, metatensor_dep, mdspan_dep, rascaline_dep],
   install: true,
 )
 # Tests

@@ -7,5 +7,5 @@ project(
 )
 
 mdspan_dep = declare_dependency(
-  include_directories: 'include',
+  include_directories: ['include', 'include/experimental'],
 )
