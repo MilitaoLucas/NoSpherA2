@@ -1,0 +1,2 @@
+/home/lucas/CLionProjects/NoSpherA2/subprojects/openblas/temp/CMakeFiles/edit_cache.dir
+/home/lucas/CLionProjects/NoSpherA2/subprojects/openblas/temp/CMakeFiles/rebuild_cache.dir
