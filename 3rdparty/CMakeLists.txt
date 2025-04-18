@@ -148,14 +148,14 @@ if (BUILD_OPENBLAS)
             set(CMAKE_Fortran_COMPILER "gfortran")
         endif()
     endif()
+    CPMAddPackage(
+        NAME openblas
+        GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
+        VERSION "0.3.29"
+        GIT_TAG "v0.3.29"
+        DOWNLOAD_ONLY YES
+    )
     if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
-        CPMAddPackage(
-            NAME openblas
-            GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
-            VERSION "0.3.29"
-            GIT_TAG "v0.3.29"
-            DOWNLOAD_ONLY YES
-        )
         set(BLAS_LAPACK_SOURCE_DIR "${_CPM_DEPENDENCY_openblas_SOURCE_DIR}")
         message(WARNING "BLAS_SOURC_DIR ${BLAS_LAPACK_SOURCE_DIR}")
         if(openblas_ADDED)
@@ -188,40 +188,33 @@ if (BUILD_OPENBLAS)
             file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
         endif ()
     else()
-        set(BLAS_LAPACK_HEADERS
-          cblas.h
-          f77blas.h
-          lapack.h
-          lapacke.h
-          lapacke_config.h
-          lapacke_mangling.h
-          lapacke_utils.h
-          openblas_config.h
+        message(WARNING "reached windows build")
+        set(BLAS_LAPACK_SOURCE_DIR "${_CPM_DEPENDENCY_openblas_SOURCE_DIR}")
+        message(WARNING "BLAS_SOURC_DIR ${BLAS_LAPACK_SOURCE_DIR}")
+        set(OPENBLAS_INSTALL_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas)
+        file(MAKE_DIRECTORY "${OPENBLAS_INSTALL_DIR}")
+        file(MAKE_DIRECTORY "${OPENBLAS_INSTALL_DIR}/lib")
+        ExternalProject_Add(
+          OpenBLAS
+          SOURCE_DIR ${openblas_SOURCE_DIR}
+          BUILD_IN_SOURCE ON
+          CMAKE_ARGS
+            -G "Visual Studio 17 2022"
+            -DCMAKE_BUILD_TYPE=Release
+            -DNOFORTRAN=ON
+          BUILD_COMMAND msbuild -nologo OpenBLAS.sln -p:Configuration=Release -m
+          INSTALL_COMMAND cmake -DBUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${OPENBLAS_INSTALL_DIR}  -P cmake_install.cmake
+          BUILD_BYPRODUCTS ${OPENBLAS_INSTALL_DIR}/lib/openblas.lib
+          LOG_BUILD ON
         )
-        set(DESTINATION_INCLUDE_DIR "${CMAKE_BINARY_DIR}/3rdparty/openblas/include")
-        set(openblas_SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/openblas-src)
-        CPMAddPackage(
-            NAME OpenBLAS
-            GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
-            VERSION "0.3.29"
-            GIT_TAG "v0.3.29"
-            SOURCE_DIR ${openblas_SOURCE_DIR}
-            OPTIONS
-                "G Visual Studio 17 2022"
-                "CMAKE_BUILD_TYPE Release"
-                "NOFORTRAN OFF"
-            HEADER_DIRS include
+        # Create imported target
+        add_library(openblas STATIC IMPORTED GLOBAL)
+        add_dependencies(openblas OpenBLAS)
+
+        set_target_properties(openblas PROPERTIES
+            IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/openblas.lib
         )
-        message(WARNING "SOURCE DIR: ${openblas_SOURCE_DIR}")
-        message(WARNING "DESTINATION DIR: ${DESTINATION_INCLUDE_DIR}")
-        file(MAKE_DIRECTORY "${DESTINATION_INCLUDE_DIR}")
-        file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/CBLAS/include/"
-             DESTINATION "${DESTINATION_INCLUDE_DIR}")
-        file(COPY "${openblas_SOURCE_DIR}/lapack-netlib/LAPACKE/include/"
-             DESTINATION "${DESTINATION_INCLUDE_DIR}")
-        file(COPY "${openblas_SOURCE_DIR}/cblas.h" DESTINATION "${DESTINATION_INCLUDE_DIR}") # THIS IS NEEDED TO BE AFTER THE ABOVE
-        set(OPENBLAS_INCLUDE_DIR ${DESTINATION_INCLUDE_DIR} PARENT_SCOPE)
-    endif()
+    endif ()
 endif()
 if (NOT FROM_SOURCE_DEPENDENCIES)
     if (WIN32)
