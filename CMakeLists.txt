@@ -66,7 +66,7 @@ set(SOURCE_FILES
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(BUILD_OPENMP ON)
+#    set(BUILD_OPENMP ON)
     set(BUILD_OPENBLAS ON)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(OPENMP_LIBRARY_LOCATION openmp)
@@ -109,11 +109,13 @@ target_compile_definitions(NoSpherA2 PRIVATE
     $<$<CONFIG:Release>:NDEBUG>
 )
 
-message(WARNING ${OpenMP_CXX_FLAGS})
 if (${WINDOWS_CROSS_COMPILE} OR WIN32)
-    message("DOING IT FOR WINDOWS" )
-    set(LIB_ATOMIC "")
-    set(OPENMP_FLAG "-fopenmp")
+    if(MSVC)
+        message(STATUS "USING MSVC")
+        set(OPENMP_FLAG "/openmp")
+    else()
+        set(OPENMP_FLAG "-fopenmp")
+    endif()
 else()
     set(LIB_ATOMIC "-latomic")
     set(OPENMP_FLAG "-fopenmp")
@@ -145,6 +147,14 @@ target_link_libraries(NoSpherA2 PRIVATE
     -lpthread
     ${LIB_ATOMIC}
 )
+if(WIN32 OR WINDOWS_CROSS_COMPILE)
+    target_link_libraries(NoSpherA2 PRIVATE
+        ws2_32.lib
+        userenv.lib
+        ntdll.lib
+    )
+endif ()
+
 message(WARNING ${OPENMP_LIBRARY})
 
 set_target_properties(NoSpherA2 PROPERTIES

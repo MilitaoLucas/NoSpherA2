@@ -5,9 +5,18 @@ ALL_TARGETS = sucrose_SF sucrose_IAM sucrose_twin fractal disorder_THPP grown_wa
 # Convert the path to an OS-specific format if necessary
 # For Unix-like systems, this will be a no-op
 ifeq ($(OS),Windows_NT)
-  BASE_PATH := ${EXE_PATH}\NoSpherA2.exe
-  MV := move
-  DIFF := fc /c
+  ifeq ($(findstring MINGW,$(MSYSTEM)),MINGW)
+    # Likely running in Git Bash
+    BASE_PATH := ${EXE_PATH}/NoSpherA2
+    MV := mv
+    DIFF := diff -q -i -b
+  else
+    # Likely using cmd.exe or PowerShell
+    BASE_PATH := ${EXE_PATH}\NoSpherA2.exe # Use backslash
+	MV := move
+	DIFF := fc /c
+  endif
+
 else
   BASE_PATH := ${EXE_PATH}/NoSpherA2
   MV := mv

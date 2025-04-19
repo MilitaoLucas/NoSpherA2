@@ -51,10 +51,10 @@ if (BUILD_OPENMP AND (NOT WIN32))
     set(OPENMP_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/openmp/src/llvm_openmp-build/runtime/src/libomp.a PARENT_SCOPE)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(OpenMP_CXX_FLAGS "-fopenmp=libomp" PARENT_SCOPE)
+
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         set(OpenMP_CXX_FLAGS "-fopenmp" PARENT_SCOPE)
     endif ()
-
 endif()
 
 if (WIN32 OR WINDOWS_CROSS_COMPILE)
@@ -148,14 +148,15 @@ if (BUILD_OPENBLAS)
             set(CMAKE_Fortran_COMPILER "gfortran")
         endif()
     endif()
-    CPMAddPackage(
-        NAME openblas
-        GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
-        VERSION "0.3.29"
-        GIT_TAG "v0.3.29"
-        DOWNLOAD_ONLY YES
-    )
     if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
+
+        CPMAddPackage(
+            NAME openblas
+            GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
+            VERSION "0.3.29"
+            GIT_TAG "v0.3.29"
+            DOWNLOAD_ONLY YES
+        )
         set(BLAS_LAPACK_SOURCE_DIR "${_CPM_DEPENDENCY_openblas_SOURCE_DIR}")
         message(WARNING "BLAS_SOURC_DIR ${BLAS_LAPACK_SOURCE_DIR}")
         if(openblas_ADDED)
@@ -194,19 +195,30 @@ if (BUILD_OPENBLAS)
         set(OPENBLAS_INSTALL_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas)
         file(MAKE_DIRECTORY "${OPENBLAS_INSTALL_DIR}")
         file(MAKE_DIRECTORY "${OPENBLAS_INSTALL_DIR}/lib")
-        ExternalProject_Add(
-          OpenBLAS
-          SOURCE_DIR ${openblas_SOURCE_DIR}
-          BUILD_IN_SOURCE ON
-          CMAKE_ARGS
-            -G "Visual Studio 17 2022"
-            -DCMAKE_BUILD_TYPE=Release
-            -DNOFORTRAN=ON
-          BUILD_COMMAND msbuild -nologo OpenBLAS.sln -p:Configuration=Release -m
-          INSTALL_COMMAND cmake -DBUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${OPENBLAS_INSTALL_DIR}  -P cmake_install.cmake
-          BUILD_BYPRODUCTS ${OPENBLAS_INSTALL_DIR}/lib/openblas.lib
-          LOG_BUILD ON
-        )
+
+        file(MAKE_DIRECTORY "${OPENBLAS_INSTALL_DIR}/include")
+        if (NOT EXISTS "${OPENBLAS_INSTALL_DIR}/lib/openblas.lib")
+            ExternalProject_Add(
+                OpenBLAS
+                GIT_REPOSITORY https://github.com/xianyi/OpenBLAS.git
+                GIT_TAG v0.3.27
+                CMAKE_ARGS
+                    -G "Visual Studio 17 2022"
+                    -DCMAKE_INSTALL_PREFIX=${OPENBLAS_INSTALL_DIR}
+                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                    -DNOFORTRAN=ON
+                    -DCMAKE_BUILD_TYPE=Release
+                    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+
+                BINARY_DIR ${CMAKE_BINARY_DIR}/3rdparty/openblas-build
+                BUILD_COMMAND msbuild -nologo OpenBLAS.sln -p:Configuration=Release -m
+    #            BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+                INSTALL_COMMAND cmake -DBUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${OPENBLAS_INSTALL_DIR} -P cmake_install.cmake
+                BUILD_BYPRODUCTS ${OPENBLAS_INSTALL_DIR}/lib/openblas.lib
+            )
+        endif ()
+
         # Create imported target
         add_library(openblas STATIC IMPORTED GLOBAL)
         add_dependencies(openblas OpenBLAS)
@@ -214,6 +226,9 @@ if (BUILD_OPENBLAS)
         set_target_properties(openblas PROPERTIES
             IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rdparty/openblas/lib/openblas.lib
         )
+        set(OPENBLAS_INCLUDE_DIR ${OPENBLAS_INSTALL_DIR}/include PARENT_SCOPE)
+        file(MAKE_DIRECTORY ${OPENBLAS_INSTALL_DIR}/include/openblas)
+        target_include_directories(openblas INTERFACE ${OPENBLAS_INSTALL_DIR}/include/openblas)
     endif ()
 endif()
 if (NOT FROM_SOURCE_DEPENDENCIES)
