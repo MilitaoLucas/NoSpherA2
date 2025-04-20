@@ -16,6 +16,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(FROM_SOURCE_DEPENDENCIES "BUILD EVERY DEPENDENCY FROM SOURCE" OFF)
     option(WINDOWS_CROSS_COMPILE "CROSS COMPILING TO WINDOWS" OFF)
     option(BUILD_OPENMP "Necessary if cross compiling from windows to Linux/Darwin" OFF)
+    option(USE_VECTOR_INSTRUCTIONS "If you want to use vector instructions. Defaults to ON" ON)
 endif()
 if(WINDOWS_CROSS_COMPILE)
     if(FROM_SOURCE_DEPENDENCIES)
@@ -118,8 +119,13 @@ if (${WINDOWS_CROSS_COMPILE} OR WIN32)
     endif()
 else()
     set(LIB_ATOMIC "-latomic")
-    set(OPENMP_FLAG "-fopenmp")
 endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(OPENMP_FLAG "-fopenmp=libomp")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(OPENMP_FLAG "-fopenmp")
+endif ()
 target_compile_options(NoSpherA2 PRIVATE
     $<$<CONFIG:Debug>:-g -Og>
     $<$<CONFIG:Release>:-O3>
@@ -129,14 +135,23 @@ target_compile_options(NoSpherA2 PRIVATE
     -MP
     -fmessage-length=0
 )
-
+if (${USE_VECTOR_INSTRUCTIONS})
+    target_compile_options(NoSpherA2 PRIVATE
+        -msse2
+        -msse3
+        -msse4.1
+        -msse4.2
+        -mavx
+        -ffast-math
+    )
+endif ()
 target_link_options(NoSpherA2 PRIVATE
     -static
     -static-libgcc
     -static-libstdc++
 )
 
-
+message(STATUS "Using ${OPENMP_LIBRARY} for openmp")
 target_link_libraries(NoSpherA2 PRIVATE
     mdspan
     metatensor
