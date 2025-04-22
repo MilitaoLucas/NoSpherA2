@@ -160,6 +160,15 @@ fractal:
 		&& ${MV} sucrose_diff.cube_fractal_plot $@.log \
 		&& ${DIFF} $@.log $@.good
 
+sucrose_fchk_wf:
+	@echo 'Running test: $@'
+	@cd sucrose_fchk_SF && $(BASE_PATH) \
+		-cif sucrose.cif \
+		-hkl sucrose.hkl \
+		-wfn sucrose.fchk \
+		-acc 0 \
+		-no-date \
+
 properties:
 	@echo 'Running test: $@'
 	@cd sucrose_fchk_SF && $(BASE_PATH) \

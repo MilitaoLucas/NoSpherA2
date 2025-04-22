@@ -76,3 +76,7 @@ add_test(NAME "sucrose_twin"
 add_test(NAME "wfn_reading"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
     COMMAND ${MAKE} EXE_PATH=${PROGRAM} wfn_reading)
+
+add_test(NAME "sucrose_fchk_wf"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
+    COMMAND ${MAKE} EXE_PATH=${PROGRAM} sucrose_fchk_SF)
