@@ -17,6 +17,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(WINDOWS_CROSS_COMPILE "CROSS COMPILING TO WINDOWS" OFF)
     option(BUILD_OPENMP "Necessary if cross compiling from windows to Linux/Darwin" OFF)
     option(USE_VECTOR_INSTRUCTIONS "If you want to use vector instructions. Defaults to ON" ON)
+    option(WITH_CLANG_TIDY "Enable clang tidy" OFF)
 endif()
 if(WINDOWS_CROSS_COMPILE)
     if(FROM_SOURCE_DEPENDENCIES)
@@ -64,6 +65,10 @@ set(SOURCE_FILES
     Src/integrator.cpp
     Src/rys_roots.cpp
 )
+
+if("${WITH_CLANG_TIDY}")
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy;clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*,-modernize-pass-by-value,-modernize-use-auto,-modernize-use-using")
+endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

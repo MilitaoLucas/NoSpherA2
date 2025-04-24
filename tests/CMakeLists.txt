@@ -13,6 +13,10 @@ else()
   set(PROGRAM ${CMAKE_BINARY_DIR})
 endif()
 
+add_test(NAME "alanine_occ"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
+    COMMAND ${MAKE} EXE_PATH=${PROGRAM} alanine_occ)
+
 add_test(NAME "Hybrid_mode"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests
     COMMAND ${MAKE} EXE_PATH=${PROGRAM} Hybrid_mode)
