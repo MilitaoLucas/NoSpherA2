@@ -5009,7 +5009,7 @@ bool WFN::read_fchk(const std::filesystem::path &filename, std::ostream &log, co
             return false;
         }
         MOocc[0].resize(MOene[0].size());
-        MOocc[1].resize(MOene[1].size());
+        MOocc[1].resize(MOene[1].size()+MOene[0].size());
 #pragma omp parallel for
         for (int i = 0; i < MOene[0].size(); i++)
         {
