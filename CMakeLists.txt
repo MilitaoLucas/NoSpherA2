@@ -1,0 +1,190 @@
+cmake_minimum_required(VERSION 3.14)
+project(NoSpherA2 CXX C)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+set(DEBUG_DIR ${CMAKE_SOURCE_DIR}/build_debug)
+set(CMAKE_INSTALL_PREFIX $ENV{HOME})
+message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    option(BUILD_TESTING "Run tests" ON)
+    option(FROM_SOURCE_DEPENDENCIES "BUILD EVERY DEPENDENCY FROM SOURCE" OFF)
+    option(WINDOWS_CROSS_COMPILE "CROSS COMPILING TO WINDOWS" OFF)
+    option(BUILD_OPENMP "Necessary if cross compiling from windows to Linux/Darwin" OFF)
+    option(USE_VECTOR_INSTRUCTIONS "If you want to use vector instructions. Defaults to ON" ON)
+    option(WITH_CLANG_TIDY "Enable clang tidy" OFF)
+endif()
+if(WINDOWS_CROSS_COMPILE)
+    if(FROM_SOURCE_DEPENDENCIES)
+        message(WARNING "From source dependencies are currently disabled for cross-compilation.")
+    endif()
+    set(FROM_SOURCE_DEPENDENCIES OFF)
+endif()
+if (FROM_SOURCE_DEPENDENCIES)
+    set(BUILD_OPENMP ON)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-unique-section-names")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
+endif()
+message(STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID}")
+set(SOURCE_FILES
+    Src/wfn_class.cpp
+    Src/atoms.cpp
+    Src/properties.cpp
+    Src/spherical_density.cpp
+    Src/AtomGrid.cpp
+    Src/basis_set.cpp
+    Src/convenience.cpp
+    Src/sphere_lebedev_rule.cpp
+    Src/scattering_factors.cpp
+    Src/cube.cpp
+    Src/fchk.cpp
+    Src/JKFit.cpp
+    Src/NoSpherA2.cpp
+    Src/SALTED_utilities.cpp
+    Src/constants.cpp
+    Src/ECPs_corrections.cpp
+    Src/libCintMain.cpp
+    Src/nos_math.cpp
+    Src/SALTED_io.cpp
+    Src/SALTED_predictor.cpp
+    Src/SALTED_equicomb.cpp
+    Src/isosurface.cpp
+    Src/cart2sph.cpp
+    Src/int_g2e.cpp
+    Src/int_optimizer.cpp
+    Src/integration_params.cpp
+    Src/integrator.cpp
+    Src/rys_roots.cpp
+)
+
+if("${WITH_CLANG_TIDY}")
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy;clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*,-modernize-pass-by-value,-modernize-use-auto,-modernize-use-using")
+endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPM.cmake")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#    set(BUILD_OPENMP ON)
+    set(BUILD_OPENBLAS ON)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(OPENMP_LIBRARY_LOCATION openmp)
+endif ()
+if(WIN32 OR WINDOWS_CROSS_COMPILE)
+    message("windows!!! link")
+    set(CMAKE_LINKER lld-link)
+endif()
+set(OPENMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openmp/include)
+
+add_subdirectory(3rdparty EXCLUDE_FROM_ALL)
+set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenblas.a)
+message(WARNING "BLAS_INCLUD ${OPENBLAS_INCLUDE_DIR}")
+set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src
+    ${MDSPAN_INCLUDE_DIR}
+    ${OPENMP_INCLUDE_DIR}
+    ${OPENBLAS_INCLUDE_DIR}
+)
+
+add_executable(NoSpherA2 ${SOURCE_FILES})
+
+target_precompile_headers(NoSpherA2 PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/pch.h
+)
+if(BLAS_FOUND)
+    set(LIB_BLAS BLAS::BLAS)
+else ()
+    set(LIB_BLAS openblas)
+endif ()
+if (TARGET openmp)
+    message(WARNING "branch openmp")
+    add_dependencies(NoSpherA2 openmp openblas chemfiles)
+else ()
+    add_dependencies(NoSpherA2 openblas chemfiles)
+endif ()
+target_compile_definitions(NoSpherA2 PRIVATE
+    $<$<CONFIG:Debug>:DEBUG>
+    $<$<CONFIG:Release>:NDEBUG>
+)
+
+if (${WINDOWS_CROSS_COMPILE} OR WIN32)
+    if(MSVC)
+        message(STATUS "USING MSVC")
+        set(OPENMP_FLAG "/openmp")
+    else()
+        set(OPENMP_FLAG "-fopenmp")
+    endif()
+else()
+    set(LIB_ATOMIC "-latomic")
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(OPENMP_FLAG "-fopenmp=libomp")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(OPENMP_FLAG "-fopenmp")
+endif ()
+target_compile_options(NoSpherA2 PRIVATE
+    $<$<CONFIG:Debug>:-g -Og>
+    $<$<CONFIG:Release>:-O3>
+    ${OPENMP_FLAG}
+    -static
+    -MMD
+    -MP
+    -fmessage-length=0
+)
+if (${USE_VECTOR_INSTRUCTIONS})
+    target_compile_options(NoSpherA2 PRIVATE
+        -msse2
+        -msse3
+        -msse4.1
+        -msse4.2
+        -mavx
+        -ffast-math
+    )
+endif ()
+target_link_options(NoSpherA2 PRIVATE
+    -static
+    -static-libgcc
+    -static-libstdc++
+)
+
+message(STATUS "Using ${OPENMP_LIBRARY} for openmp")
+target_link_libraries(NoSpherA2 PRIVATE
+    mdspan
+    metatensor
+    rascaline
+    openblas
+    ${OPENMP_LIBRARY}
+    -ldl
+    -lpthread
+    ${LIB_ATOMIC}
+)
+if(WIN32 OR WINDOWS_CROSS_COMPILE)
+    target_link_libraries(NoSpherA2 PRIVATE
+        ws2_32.lib
+        userenv.lib
+        ntdll.lib
+    )
+endif ()
+
+message(WARNING ${OPENMP_LIBRARY})
+
+set_target_properties(NoSpherA2 PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    message(STATUS "Running tests")
+    enable_testing()
+    add_subdirectory(tests)
+endif()

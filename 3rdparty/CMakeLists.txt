@@ -1,0 +1,13 @@
+CPMAddPackage(
+    NAME OpenBLAS
+    GITHUB_REPOSITORY "OpenMathLib/OpenBLAS"
+    VERSION "0.3.29"
+    GIT_TAG "a64b75a2e00691b126a3c342a265f96fac98514f"
+)
+
+CPMAddPackage(
+    NAME mdspan
+    GITHUB_REPOSITORY "kokkos/mdspan"
+    VERSION "0.6.0"
+    GIT_TAG "74036ad3f253001fcf37b167067c0f4d57a17175"
+)
