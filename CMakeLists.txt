@@ -45,6 +45,7 @@ set(SOURCE_FILES
     Src/convenience.cpp
     Src/sphere_lebedev_rule.cpp
     Src/scattering_factors.cpp
+    Src/basis_set_helper/basis_set_helper.cpp
     Src/cube.cpp
     Src/fchk.cpp
     Src/JKFit.cpp
@@ -66,6 +67,7 @@ set(SOURCE_FILES
     Src/rys_roots.cpp
 )
 
+#FILE(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.cpp")
 if("${WITH_CLANG_TIDY}")
     set(CMAKE_CXX_CLANG_TIDY "clang-tidy;clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*,-modernize-pass-by-value,-modernize-use-auto,-modernize-use-using")
 endif()
@@ -88,6 +90,7 @@ set(OPENBLAS_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/openblas/lib/libopenbl
 message(WARNING "BLAS_INCLUD ${OPENBLAS_INCLUDE_DIR}")
 set(MDSPAN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/_deps/mdspan-src/include)
 include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/basis_set_helper
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
     ${MDSPAN_INCLUDE_DIR}
     ${OPENMP_INCLUDE_DIR}
@@ -157,10 +160,11 @@ target_link_options(NoSpherA2 PRIVATE
 )
 
 message(STATUS "Using ${OPENMP_LIBRARY} for openmp")
+message(WARNING "${featomic_INCLUDE_DIR}")
 target_link_libraries(NoSpherA2 PRIVATE
     mdspan
+    featomic
     metatensor
-    rascaline
     openblas
     ${OPENMP_LIBRARY}
     -ldl

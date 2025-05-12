@@ -85,7 +85,7 @@ if(NOT (WIN32 OR WINDOWS_CROSS_COMPILE))
                 VERSION "0.10.4"
                 GIT_TAG "0.10.4"
                 OPTIONS
-                    "CMAKE_BUILD_TYPE release"
+                    "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
                     "BUILD_SHARED_LIBS ON"
                     "CMAKE_C_FLAGS -Wno-error=implicit-function-declaration"
                     "CMAKE_CXX_FLAGS -Wno-error=implicit-function-declaration"
@@ -99,7 +99,6 @@ if((WIN32 OR WINDOWS_CROSS_COMPILE))
         IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Lib/chemfiles.lib
     )
 endif()
-#target_include_directories(chemfiles INTERFACE "${mdspan_SOURCE_DIR}/include")
 
 CPMAddPackage(
     NAME mdspan
@@ -237,41 +236,50 @@ if (BUILD_OPENBLAS)
         target_include_directories(openblas INTERFACE ${OPENBLAS_INSTALL_DIR}/include/openblas)
     endif ()
 endif()
-if (NOT FROM_SOURCE_DEPENDENCIES)
-    if (WIN32)
-        set(METATENSOR_LIB metatensor.lib)
-    elseif (DARWIN)
-        set(METATENSOR_LIB libmetatensor_Mac.a)
-    else ()
-        set(METATENSOR_LIB libmetatensor.a)
-    endif ()
-    add_library(metatensor STATIC IMPORTED GLOBAL)
-    set_target_properties(metatensor PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Lib/${METATENSOR_LIB}
-    )
-else ()
-    CPMAddPackage(
-        NAME metatensor
-        GITHUB_REPOSITORY "metatensor/metatensor"
-        VERSION "v0.1.12"
-        GIT_TAG "metatensor-core-v0.1.12"
-        OPTIONS
-            "CMAKE_BUILD_TYPE Release"
-            "BUILD_SHARED_LIBS OFF"
-            "METATENSOR_INSTALL_BOTH_STATIC_SHARED OFF"
-    )
-endif ()
 
-# As rascaline was renamed, for now there will be no option to build from source
-# For now, as rascaline header files are in the Src directory, I will just add the imported location
-if (WIN32)
-    set(RASCALINE_LIB rascaline.lib)
-elseif (DARWIN)
-    set(RASCALINE_LIB librascaline_mac.a)
-else ()
-    set(RASCALINE_LIB librascaline.a)
-endif ()
-add_library(rascaline STATIC IMPORTED GLOBAL)
-set_target_properties(rascaline PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/Lib/${RASCALINE_LIB}
+
+CPMAddPackage(
+    NAME featomic_src
+    GITHUB_REPOSITORY "metatensor/featomic"
+    GIT_TAG "featomic-v0.6.1"
+    VERSION "v0.6.1"
+    DOWNLOAD_ONLY YES
 )
+if (featomic_src_ADDED)
+    ExternalProject_Add(featomic_src
+            SOURCE_DIR ${featomic_src_SOURCE_DIR}/featomic
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openmp
+            CMAKE_ARGS
+                -GNinja
+                -DBUILD_SHARED_LIBS=OFF
+                -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/featomic
+                -DFEATOMIC_FETCH_METATENSOR=ON
+                -DFEATOMIC_INSTALL_BOTH_STATIC_SHARED=OFF
+            BUILD_COMMAND ninja -j0
+            BUILD_BYPRODUCTS
+                ${CMAKE_CURRENT_BINARY_DIR}/featomic/lib/libfeatomic.a
+                ${CMAKE_CURRENT_BINARY_DIR}/featomic/lib64/libmetatensor.a
+            INSTALL_COMMAND ninja install
+    )
+
+    add_library(metatensor STATIC IMPORTED GLOBAL)
+    add_dependencies(metatensor featomic_src)
+
+
+    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/featomic/include")
+    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/featomic/lib")
+    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/featomic/lib64")
+
+    set_target_properties(metatensor PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/featomic/lib64/libmetatensor.a
+        INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR}/featomic/include
+    )
+
+    add_library(featomic STATIC IMPORTED GLOBAL)
+    add_dependencies(featomic metatensor)
+    set_target_properties(featomic PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/featomic/lib/libfeatomic.a
+        INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR}/featomic/include
+    )
+endif ()
+message(WARNING "${featomic_src_INCLUDE_DIR}")
