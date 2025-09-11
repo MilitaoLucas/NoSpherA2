@@ -1,9 +1,10 @@
 #include "pch.h"
 #include <execution>
+#include <vector>
 #include "nos_math.h"
 
 #if defined(__APPLE__)
-// On macOS we’re using Accelerate for BLAS/LAPACK
+// On macOS weï¿½re using Accelerate for BLAS/LAPACK
 #include <Accelerate/Accelerate.h>
 #else
 // Linux/Windows with oneMKL
@@ -281,7 +282,7 @@ void solve_linear_system(vec& A, const size_t& size_A, vec& b)
     const lapack_int nrhs = 1;   // Number of right-hand sides (columns of rho and )
     const lapack_int lda = n;    // Leading dimension of eri2c
     const lapack_int ldb = 1;    // Leading dimension of rho
-    ivec ipiv(n, 0);              // Pivot indices
+    std::vector<lapack_int> ipiv(n, 0);              // Pivot indices
 
     // Call LAPACK function to solve the system
     int info = LAPACKE_dgesv(LAPACK_ROW_MAJOR, n, nrhs, A.data(), lda, ipiv.data(), b.data(), ldb);
@@ -305,7 +306,7 @@ void solve_linear_system(vec& A, const size_t& size_A, vec& b)
 //
 //    //using namespace lahva::gpu;
 //    //// similar to the CPU Matrix, we have a quadratic 5 x 5 matrix
-//    //// here we explicitly give the template parameters for the Allocators instead of relying on default values. 
+//    //// here we explicitly give the template parameters for the Allocators instead of relying on default values.
 //    //Matrix<float, CudaHostAllocator<float>, CudaDeviceAsyncAllocator<float>> s(5, 1.0);
 //
 //}
@@ -322,7 +323,7 @@ NNLSResult nnls(dMatrix2& A,
     ivec inds(n);
     vec w(n), x(n), work(m), zz(m);
 
-    for (int i = 0; i < n; ++i) 
+    for (int i = 0; i < n; ++i)
         inds[i] = i;
 
     int iteration = 0, iz1 = 0, nrow = 0, nsetp = 0, jj = 0;
