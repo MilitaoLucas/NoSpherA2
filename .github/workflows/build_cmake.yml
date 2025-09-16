@@ -1,4 +1,4 @@
-name: build_cmake.yml
+name: BUILD_CMAKE
 on:
   workflow_dispatch:
 
