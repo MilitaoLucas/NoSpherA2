@@ -10,8 +10,7 @@ ARCHS := arm64 x86_64
 
 # Source & include roots
 SRC_DIR := ../Src
-INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include
-
+INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../mdspan/include
 # Local static libs (adjust as needed)
 EXTRA_LIBS := ../Lib/featomic_install/lib/libfeatomic.a \
 			  ../Lib/featomic_install/lib/libmetatensor.a
