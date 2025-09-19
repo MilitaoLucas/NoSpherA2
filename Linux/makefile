@@ -15,7 +15,7 @@ MKL_THREADING ?= INTEL     # INTEL | SEQ  (INTEL = mkl_intel_thread + libiomp5)
 
 # Source & include roots
 SRC_DIR := ../Src
-INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include
+INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../mdspan/include
 
 # Featomic local libs
 LIBRASCALINE_I := ../Lib/featomic_install/include
@@ -75,10 +75,10 @@ basis_set_converter:
 
 # ---- Precompiled headers ----
 pch.h.gch: ../Src/pch.h
-	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS} -x c++-header -o "$@" "$<"
+	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS} ${INCLUDES} -x c++-header -o "$@" "$<"
 
 pch.h.gch_d: ../Src/pch.h
-	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS_DEBUG} -x c++-header -o "$@" "$<"
+	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS_DEBUG} ${INCLUDES} -x c++-header -o "$@" "$<"
 
 # ---- auxiliary_basis depends on converter ----
 auxiliary_basis.o: basis_set_converter
