@@ -11,7 +11,7 @@ arm64: basis_set_converter
 GCC_OPTS := -std=c++2a -O3 -c -fmessage-length=0
 
 GCC_OPTS_a := ${GCC_OPTS} -mcpu=apple-m1
-GCC_OPTS_x := ${GCC_OPTS} -march=x86_64
+GCC_OPTS_x := ${GCC_OPTS} -march=x86-64
 TARGET_FLAG_a := -target aarch64-apple-macos13.0
 TARGET_FLAG_x := -target x86_64-apple-macos13.0
 
