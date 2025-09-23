@@ -15,12 +15,19 @@ MKL_THREADING ?= INTEL     # INTEL | SEQ  (INTEL = mkl_intel_thread + libiomp5)
 
 # Source & include roots
 SRC_DIR := ../Src
-INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include
+INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../mdspan/include
 
 # Featomic local libs
-LIBRASCALINE   := ../Lib/featomic_install/lib/libfeatomic.a
-LIBRASCALINE   += ../Lib/featomic_install/lib/libmetatensor.a
 LIBRASCALINE_I := ../Lib/featomic_install/include
+LIBRASCALINE   := ../Lib/featomic_install/lib/libfeatomic.a
+METATENSOR_LIB64 := ../Lib/featomic_install/lib64/libmetatensor.a
+METATENSOR_LIB := ../Lib/featomic_install/lib/libmetatensor.a
+
+ifneq (,$(wildcard $(METATENSOR_LIB64)))
+  LIBRASCALINE += $(METATENSOR_LIB64)
+else
+  LIBRASCALINE += $(METATENSOR_LIB)
+endif
 
 # ---- Compiler flags (no -fopenmp at link time; only at compile time) ----
 GCC_OPTS       := -std=c++2b -O3 -c -fmessage-length=0 -fopenmp -static -MMD -MP \
@@ -77,10 +84,10 @@ basis_set_converter:
 
 # ---- Precompiled headers ----
 pch.h.gch: ../Src/pch.h
-	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS} -x c++-header -o "$@" "$<"
+	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS} ${INCLUDES} -x c++-header -o "$@" "$<"
 
 pch.h.gch_d: ../Src/pch.h
-	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS_DEBUG} -x c++-header -o "$@" "$<"
+	@$(WITH_ONEAPI) ${COMP} ${GCC_OPTS_DEBUG} ${INCLUDES} -x c++-header -o "$@" "$<"
 
 # ---- auxiliary_basis depends on converter ----
 auxiliary_basis.o: basis_set_converter
