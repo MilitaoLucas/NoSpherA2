@@ -27,7 +27,7 @@ OBJS_arm64  := $(patsubst $(SRC_DIR)/%.cpp, build/arm64/%.o,  $(SRCS))
 OBJS_x86_64 := $(patsubst $(SRC_DIR)/%.cpp, build/x86_64/%.o, $(SRCS))
 
 # Common compile settings
-CXXSTD    := -std=c++20 -DACCELERATE_NEW_LAPACK
+CXXSTD    := -std=c++20 -DACCELERATE_NEW_LAPACK -DAPPLE
 OPTFLAGS  := -O3 -fvisibility=hidden
 WARNFLAGS := -fmessage-length=0
 INCLUDES  := $(addprefix -I,$(INC_DIRS))
