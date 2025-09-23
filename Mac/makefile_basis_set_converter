@@ -38,19 +38,19 @@ BASIS_OBJS_native := $(BASIS_OBJ_NAMES:=.o_native_basis)
 basis_set_converter: ${BASIS_OBJS_arm64}
 	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS_arm64} ${TARGET_FLAG_a}
 	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper
+	./../BasisSetConverter ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 basis_set_converter_x86: ${BASIS_OBJS_x86}
 	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS_x86} ${TARGET_FLAG_x}
 	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper
+	./../BasisSetConverter ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 basis_set_converter_native: ${BASIS_OBJS_native}
 	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS_native}
 	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper
+	./../BasisSetConverter ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 clean:

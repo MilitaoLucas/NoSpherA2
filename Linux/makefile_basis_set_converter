@@ -22,7 +22,7 @@ BASIS_OBJS := $(BASIS_OBJ_NAMES:=.o_basis)
 basis_set_converter: ${BASIS_OBJS}
 	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS}
 	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper
+	./../BasisSetConverter ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 clean:
