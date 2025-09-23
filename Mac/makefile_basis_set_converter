@@ -36,26 +36,26 @@ BASIS_OBJS_native := $(BASIS_OBJ_NAMES:=.o_native_basis)
 
 #Basis set converter
 basis_set_converter: ${BASIS_OBJS_arm64}
-	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS_arm64} ${TARGET_FLAG_a}
-	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper ../Src
+	@${COMP} -o "BasisSetConverterARM64" ${BASIS_OBJS_arm64} ${TARGET_FLAG_a}
+	@mv BasisSetConverterARM64 ../
+	./../BasisSetConverterARM64 ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 basis_set_converter_x86: ${BASIS_OBJS_x86}
-	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS_x86} ${TARGET_FLAG_x}
-	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper ../Src
+	@${COMP} -o "BasisSetConverterx86" ${BASIS_OBJS_x86} ${TARGET_FLAG_x}
+	@mv BasisSetConverterx86 ../
+	./../BasisSetConverterx86 ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 basis_set_converter_native: ${BASIS_OBJS_native}
-	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS_native}
-	@mv BasisSetConverter ../
-	./../BasisSetConverter ../Src/basis_set_helper ../Src
+	@${COMP} -o "BasisSetConverterNative" ${BASIS_OBJS_native}
+	@mv BasisSetConverterNative ../
+	./../BasisSetConverterNative ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
 clean:
 	@echo "Cleaning up"
-	@${RM} $(BASIS_OBJS_arm64) $(BASIS_OBJS_x86) ../BasisSetConverter ../Src/auxiliary_basis.cpp ../Src/checkpoint.txt
+	@${RM} $(BASIS_OBJS_arm64) $(BASIS_OBJS_x86) ../BasisSetConverterARM64 ../BasisSetConverter ../BasisSetConverterNative ../BasisSetConverterx86 ../Src/auxiliary_basis.cpp ../Src/checkpoint.txt
 	@echo "Cleaned up"
 
 
