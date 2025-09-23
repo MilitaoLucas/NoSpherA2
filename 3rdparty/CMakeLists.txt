@@ -83,8 +83,7 @@ if (NOT EXISTS ${ONEAPI_DIRECTORY})
         execute_process(COMMAND chmod +x ${_MKL_SH})
         execute_process(
             COMMAND ${_MKL_SH} -a --silent --eula accept --install-dir "${MKL_INSTALL_DIR}"
-
-          RESULT_VARIABLE _MKL_RC
+            RESULT_VARIABLE _MKL_RC
         )
         FILE(REMOVE $ENV{HOME})
         set(ENV{HOME} ${OLD_HOME})
