@@ -10,7 +10,7 @@ ARCHS := arm64 x86_64
 
 # Source & include roots
 SRC_DIR := ../Src
-INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include
+INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../mdspan/include
 
 # Local static libs (adjust as needed)
 EXTRA_LIBS := ../Lib/featomic_install/lib/libfeatomic.a \
@@ -91,13 +91,7 @@ NoSpherA2_x86_64: $(OBJS_x86_64)
 # Architecture-specific basis set converter
 basis_set_converter:
 	@echo "Building basis set converter for current architecture..."
-	@$(MAKE) -f makefile_basis_set_converter ARCH=$(shell uname -m) || \
-	 (echo "Building basis set converter directly..." && \
-	  $(COMP) $(CXXFLAGS_COMMON) -arch $(shell uname -m) $(OMPFLAGS_$(shell uname -m)) \
-	  ../Src/basis_set_helper/BasisSetConverter.cpp \
-	  ../Src/basis_set_helper/basis_set_helper.cpp \
-	  -o BasisSetConverter && \
-	  ./BasisSetConverter ../Windows/)
+	@$(MAKE) -f makefile_basis_set_converter ARCH=$(shell uname -m)
 
 # Generate auxiliary_basis.cpp when needed
 $(SRC_DIR)/auxiliary_basis.cpp: basis_set_converter
