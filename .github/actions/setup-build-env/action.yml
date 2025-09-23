@@ -30,7 +30,7 @@ runs:
         echo "Cargo version: $(cargo --version)"
     
         # Install libomp (Homebrew will install to correct location based on architecture)
-        brew list --versions libomp >/dev/null 2>&1 || brew install libomp
+        brew list --versions libomp >/dev/null 2>&1 || brew install libomp lapacke
     
         echo "${{ inputs.platform }} setup complete"
 

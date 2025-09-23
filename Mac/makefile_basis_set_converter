@@ -4,7 +4,7 @@ RM := rm
 COMP := g++
 
 all: basis_set_converter basis_set_converter_x86
-x86: basis_set_converter_x86
+x86_64: basis_set_converter_x86
 arm64: basis_set_converter
 
 # Define the two separate lists with appropriate endings
