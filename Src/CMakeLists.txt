@@ -51,10 +51,16 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 if (MSVC)
     target_compile_options(NoSpherA2 PRIVATE $<$<CONFIG:Release>:/MT> $<$<CONFIG:Debug>:/MTd>)
+    target_link_options(NoSpherA2 PRIVATE
+        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>>:/DEBUG>
+    )
 endif()
 target_compile_options(NoSpherA2 PRIVATE
     $<$<AND:$<CXX_COMPILER_ID:GNU,Clang>,$<CONFIG:Debug>>:-g -Og>
     $<$<AND:$<CXX_COMPILER_ID:GNU,Clang>,$<CONFIG:Release>>:-O3>
+         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>>:/Od /Zi>
+
+    $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/O2>
     $<$<AND:$<CXX_COMPILER_ID:GNU,Clang>>:-MMD -MP -fmessage-length=0>
     $<$<AND:$<CXX_COMPILER_ID:GNU,Clang>>:${OPENMP_FLAG}>
 )
@@ -75,8 +81,10 @@ target_link_options(NoSpherA2 PRIVATE
     $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<LINK_LANGUAGE:CXX>>:-static-libgcc>
     $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<LINK_LANGUAGE:CXX>>:-static-libstdc++>
 )
-target_link_libraries(NoSpherA2 PUBLIC
+target_link_libraries(NoSpherA2 PRIVATE
     MKL::MKL
+)
+target_link_libraries(NoSpherA2 PUBLIC
     basis_set_helper
     mdspan
         metatensor::static
@@ -88,7 +96,22 @@ target_link_libraries(NoSpherA2 PUBLIC
     $<$<CXX_COMPILER_ID:MSVC>:ntdll>
     $<$<CXX_COMPILER_ID:MSVC>:ws2_32>
 )
-get_target_property(MKL_LIBRARIES MKL::MKL IMPORTED_LOCATION)
-if(MKL_LIBRARIES)
-    install(RUNTIME NoSpherA2 DESTINATION ${CMAKE_BINARY_DIR}/bin OPTIONAL)
-endif()
+
+set(TARGET_FILE $<TARGET_FILE:NoSpherA2> PARENT_SCOPE)
+if (WIN32)
+    set(VCPKG_BIN_DIR "${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/bin")
+    set(VCPKG_EXTRA_LIBS "${VCPKG_BIN_DIR}/mkl_def.2.dll;${VCPKG_BIN_DIR}/libiomp5md.dll")
+    add_custom_command(
+        TARGET NoSpherA2
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/bin"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:NoSpherA2>
+            $<TARGET_FILE:NoSpherA2>
+            ${VCPKG_EXTRA_LIBS}
+            "${CMAKE_BINARY_DIR}/bin"
+        COMMAND_EXPAND_LISTS
+        VERBATIM
+    )
+    set(TARGET_FILE "${CMAKE_BINARY_DIR}/bin/NoSpherA2.exe" PARENT_SCOPE)
+endif ()
