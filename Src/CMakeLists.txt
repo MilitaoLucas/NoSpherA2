@@ -75,6 +75,10 @@ target_link_options(NoSpherA2 PRIVATE
     $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<LINK_LANGUAGE:CXX>>:-static-libgcc>
     $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<LINK_LANGUAGE:CXX>>:-static-libstdc++>
 )
+
+#TODO fix this to work with lp64 in windows/linux
+#TODO ipiv is failing because of it
+#TODO compile libcint for windows
 target_link_libraries(NoSpherA2 PUBLIC
     MKL::MKL
     basis_set_helper
