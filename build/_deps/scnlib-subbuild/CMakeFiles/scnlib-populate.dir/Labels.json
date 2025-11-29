@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/CMakeFiles/scnlib-populate"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/CMakeFiles/scnlib-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/CMakeFiles/scnlib-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/scnlib-subbuild/scnlib-populate-prefix/src/scnlib-populate-stamp/scnlib-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"scnlib-populate"
+		],
+		"name" : "scnlib-populate"
+	}
+}

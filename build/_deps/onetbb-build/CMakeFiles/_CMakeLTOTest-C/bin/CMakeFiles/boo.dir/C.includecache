@@ -1,0 +1,10 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/onetbb-build/CMakeFiles/_CMakeLTOTest-C/src/main.c
+
