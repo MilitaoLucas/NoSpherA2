@@ -80,7 +80,7 @@ WFN::WFN(const std::filesystem::path& filename, const int g_charge, const int g_
 
 WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
 {
-    // Rewritten to match read_fchk approach for compatibility with convert.cpp
+    // Hybrid approach: structure from read_fchk, MO coefficients from original OCC method
     using namespace Eigen;
     
     origin = 11;
@@ -88,7 +88,7 @@ WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
     has_ECPs = occ_WF.basis.have_ecps();
     charge = occ_WF.charge();
     
-    // Set up atoms - same as before
+    // Set up atoms
     ncen = occ_WF.atoms.size();
     atoms.resize(ncen);
     const occ::Mat3N atom_positions = occ_WF.positions();
@@ -107,26 +107,24 @@ WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
     
     auto shell2atom = occ_WF.basis.shell_to_atom();
     
-    // Convert MO coefficients to Gaussian order (handles spherical to cartesian internally)
+    // Convert MO coefficients to Gaussian order
     auto mo_go = occ::io::conversion::orb::to_gaussian_order(occ_WF.basis, occ_WF.mo);
     
-    // Build shell_types, nr_prims_shell, exp, con arrays like read_fchk
+    // Build shell info arrays
     ivec shell_types;
     ivec nr_prims_shell;
-    vec exp;
-    vec con;
+    vec exp_vec;
     
     for (size_t i = 0; i < shells.size(); i++) {
         const auto& shell = shells[i];
         shell_types.push_back(shell.l);
         nr_prims_shell.push_back(shell.num_primitives());
         for (int p = 0; p < shell.num_primitives(); p++) {
-            exp.push_back(shell.exponents(p));
-            con.push_back(shell.contraction_coefficients(p));
+            exp_vec.push_back(shell.exponents(p));
         }
     }
     
-    // Calculate total number of primitives (same formula as read_fchk)
+    // Calculate total number of primitives
     int nprims = 0;
     int nshell = static_cast<int>(shell_types.size());
     for (int i = 0; i < nshell; i++) {
@@ -134,174 +132,70 @@ WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
     }
     nex = nprims;
     
-    // Build con_coefs, exponents, centers, types - exactly like read_fchk
-    vec con_coefs;
+    // Build exponents, centers, types - using read_fchk structure
     int exp_run = 0;
     for (int a = 0; a < nshell; a++) {
-        double confac = 1.0;
-        int atom_idx = shell2atom[a] + 1;  // 1-based indexing like read_fchk
+        int atom_idx = shell2atom[a] + 1;
+        int n_cart = sht2nbas(shell_types[a]);
         
-        if (shell_types[a] == 0) {  // S shell
+        for (int cart = 0; cart < n_cart; cart++) {
             for (int i = 0; i < nr_prims_shell[a]; i++) {
-                confac = pow(8 * pow(exp[exp_run], 3) / constants::PI3, 0.25);
-                con_coefs.push_back(con[exp_run] * confac);
-                push_back_exponent(exp[exp_run]);
+                push_back_exponent(exp_vec[exp_run + i]);
                 push_back_center(atom_idx);
-                push_back_type(1);  // S type
-                exp_run++;
+                int type_offset = (shell_types[a] == 0) ? 1 :
+                                  (shell_types[a] == 1) ? 2 :
+                                  (shell_types[a] == 2) ? 5 :
+                                  (shell_types[a] == 3) ? 11 :
+                                  (shell_types[a] == 4) ? 21 : 36;
+                push_back_type(type_offset + cart);
             }
         }
-        else if (shell_types[a] == 1) {  // P shell
-            for (int cart = 0; cart < 3; cart++) {
-                for (int i = 0; i < nr_prims_shell[a]; i++) {
-                    confac = pow(128 * pow(exp[exp_run + i], 5) / constants::PI3, 0.25);
-                    con_coefs.push_back(con[exp_run + i] * confac);
-                    push_back_exponent(exp[exp_run + i]);
-                    push_back_center(atom_idx);
-                    push_back_type(2 + cart);  // X, Y, Z types
-                }
-            }
-            exp_run += nr_prims_shell[a];
-        }
-        else if (shell_types[a] == 2) {  // D shell
-            for (int cart = 0; cart < 6; cart++) {
-                for (int i = 0; i < nr_prims_shell[a]; i++) {
-                    confac = pow(2048 * pow(exp[exp_run + i], 7) / constants::PI3, 0.25);
-                    con_coefs.push_back(con[exp_run + i] * confac);
-                    push_back_exponent(exp[exp_run + i]);
-                    push_back_center(atom_idx);
-                    push_back_type(5 + cart);
-                }
-            }
-            exp_run += nr_prims_shell[a];
-        }
-        else if (shell_types[a] == 3) {  // F shell
-            for (int cart = 0; cart < 10; cart++) {
-                for (int i = 0; i < nr_prims_shell[a]; i++) {
-                    confac = pow(32768 * pow(exp[exp_run + i], 9) / constants::PI3, 0.25);
-                    con_coefs.push_back(con[exp_run + i] * confac);
-                    push_back_exponent(exp[exp_run + i]);
-                    push_back_center(atom_idx);
-                    push_back_type(11 + cart);
-                }
-            }
-            exp_run += nr_prims_shell[a];
-        }
-        else if (shell_types[a] == 4) {  // G shell
-            for (int cart = 0; cart < 15; cart++) {
-                for (int i = 0; i < nr_prims_shell[a]; i++) {
-                    confac = pow(524288 * pow(exp[exp_run + i], 11) / constants::PI3, 0.25);
-                    con_coefs.push_back(con[exp_run + i] * confac);
-                    push_back_exponent(exp[exp_run + i]);
-                    push_back_center(atom_idx);
-                    push_back_type(21 + cart);
-                }
-            }
-            exp_run += nr_prims_shell[a];
-        }
-        else if (shell_types[a] == 5) {  // H shell
-            for (int cart = 0; cart < 21; cart++) {
-                for (int i = 0; i < nr_prims_shell[a]; i++) {
-                    confac = pow(8388608 * pow(exp[exp_run + i], 13) / constants::PI3, 0.25);
-                    con_coefs.push_back(con[exp_run + i] * confac);
-                    push_back_exponent(exp[exp_run + i]);
-                    push_back_center(atom_idx);
-                    push_back_type(36 + cart);
-                }
-            }
-            exp_run += nr_prims_shell[a];
-        }
+        exp_run += nr_prims_shell[a];
     }
     
-    // Generate spherical to cartesian transformation matrices
-    vec2 p_pure_2_cart;
-    vec2 d_pure_2_cart;
-    vec2 f_pure_2_cart;
-    vec2 g_pure_2_cart;
-    generate_sph2cart_mat(p_pure_2_cart, d_pure_2_cart, f_pure_2_cart, g_pure_2_cart);
-    
-    // Get number of basis functions from OCC
+    // Build MOs using original OCC method with MappedMatrices
     int nbas = occ_WF.nbf;
-    
-    // Get MO data from OCC (after Gaussian ordering conversion)
-    // mo_go.C is (nbas x nmo) matrix of MO coefficients
     int n_alpha = occ_WF.n_alpha();
     
-    // Build MOs - following read_fchk structure
-    for (int j = 0; j < nbas; j++) {
-        double occ_val = (j < n_alpha) ? 2.0 : 0.0;
-        push_back_MO(j + 1, occ_val, mo.energies[j], 0);
+    for (int n = 0; n < nbas; ++n) {
+        double occ_val = (n < n_alpha) ? 2.0 : 0.0;
+        push_back_MO(n + 1, occ_val, mo.energies[n], 0);
+        MOs[n].assign_coefficients_size(nex);
+        double* coeffs_ptr = MOs[n].get_coefficient_ptr();
         
-        int cc_run = 0, coef_run = 0;
-        for (int p = 0; p < nshell; p++) {
-            int sw = shell_types[p];
-            switch (sw) {
-            case 0: {  // S shell
-                for (int s = 0; s < nr_prims_shell[p]; s++) {
-                    push_back_MO_coef(j, mo_go.C(coef_run, j) * con_coefs[cc_run + s]);
+        unsigned int basis_offset = 0;
+        unsigned int write_cursor = 0;
+        
+        for (const auto& shell : shells) {
+            int l = shell.l;
+            double p = (2.0 * l + 3.0) / 4.0;
+            double scalar = std::pow(2.0, 0.5 * l);
+            const auto& A = MappedMatrices[l];
+            unsigned int n_sph = A.cols();
+            unsigned int n_prim = shell.num_primitives();
+            unsigned int n_cart = A.rows();
+            
+            // Normalize contraction coefficients using original formula
+            const auto& CC = shell.contraction_coefficients.array();
+            const VectorXd contraction_coeffs = (scalar / constants::PI) * (2 * CC).pow(p) * CC;
+            
+            // Get MO coefficients for this shell
+            const auto& MOc = mo_go.C.block(basis_offset, n, n_sph, 1);
+            
+            // Transform spherical to cartesian and apply contraction
+            MatrixXd temp = A * MOc;
+            MatrixXd temp2 = contraction_coeffs * temp.transpose();
+            
+            // Store coefficients in the correct order for read_fchk compatibility
+            // temp2 is (n_prim x n_cart), we need to store in cart-major order
+            for (unsigned int cart = 0; cart < n_cart; cart++) {
+                for (unsigned int prim = 0; prim < n_prim; prim++) {
+                    coeffs_ptr[write_cursor + cart * n_prim + prim] = temp2(prim, cart);
                 }
-                coef_run++;
-                cc_run += nr_prims_shell[p];
-                break;
             }
-            case 1: {  // P shell
-                for (int cart = 0; cart < 3; cart++) {
-                    for (int s = 0; s < nr_prims_shell[p]; s++) {
-                        push_back_MO_coef(j, mo_go.C(coef_run + cart, j) * con_coefs[cc_run + s]);
-                    }
-                }
-                coef_run += 3;
-                cc_run += 3 * nr_prims_shell[p];
-                break;
-            }
-            case 2: {  // D shell - need spherical to cartesian transformation
-                double temp_coef = 0;
-                for (int cart = 0; cart < 6; cart++) {
-                    temp_coef = 0;
-                    for (int spher = 0; spher < 5; spher++) {
-                        temp_coef += d_pure_2_cart[cart][spher] * mo_go.C(coef_run + spher, j);
-                    }
-                    for (int s = 0; s < nr_prims_shell[p]; s++) {
-                        push_back_MO_coef(j, temp_coef * con_coefs[cc_run + s]);
-                    }
-                }
-                coef_run += 5;
-                cc_run += 6 * nr_prims_shell[p];
-                break;
-            }
-            case 3: {  // F shell - need spherical to cartesian transformation
-                double temp_coef = 0;
-                for (int cart = 0; cart < 10; cart++) {
-                    temp_coef = 0;
-                    for (int spher = 0; spher < 7; spher++) {
-                        temp_coef += f_pure_2_cart[cart][spher] * mo_go.C(coef_run + spher, j);
-                    }
-                    for (int s = 0; s < nr_prims_shell[p]; s++) {
-                        push_back_MO_coef(j, temp_coef * con_coefs[cc_run + s]);
-                    }
-                }
-                coef_run += 7;
-                cc_run += 10 * nr_prims_shell[p];
-                break;
-            }
-            case 4: {  // G shell - need spherical to cartesian transformation
-                double temp_coef = 0;
-                for (int cart = 0; cart < 15; cart++) {
-                    temp_coef = 0;
-                    for (int spher = 0; spher < 9; spher++) {
-                        temp_coef += g_pure_2_cart[cart][spher] * mo_go.C(coef_run + spher, j);
-                    }
-                    for (int s = 0; s < nr_prims_shell[p]; s++) {
-                        push_back_MO_coef(j, temp_coef * con_coefs[cc_run + s]);
-                    }
-                }
-                coef_run += 9;
-                cc_run += 15 * nr_prims_shell[p];
-                break;
-            }
-            default:
-                break;
-            }
+            
+            write_cursor += n_cart * n_prim;
+            basis_offset += n_sph;
         }
     }
     
