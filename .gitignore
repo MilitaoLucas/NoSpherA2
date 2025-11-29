@@ -101,3 +101,7 @@ libiomp5.so
 *.diff
 tests/SALTED/temp_rascaline.xyz
 tests/grown/temp_wavefunction.wfn
+
+# Build directories
+build/
+build_*/
