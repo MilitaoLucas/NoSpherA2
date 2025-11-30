@@ -384,15 +384,15 @@ int main(int argc, char **argv)
                 auto config = occ::io::read_occ_input_file(opt.occ);
                 auto wfn = occ::main::run_scf_external(config, true);
                 wavy.emplace_back(WFN(wfn));
-                wavy[0].set_path(opt.occ);
+                wavy.back().set_path(opt.occ);
             } else
             {
                 log_file << "Loading WFN from input file: " << setw(44) << opt.occ << flush;
                 occ::qm::Wavefunction wfn = occ::qm::Wavefunction::load(opt.occ);
                 wavy.emplace_back(WFN(wfn));
-                wavy[0].set_path(opt.occ);
+                wavy.back().set_path(opt.occ);
             }
-            constants::exp_cutoff = std::log(constants::density_accuracy / wavy[0].get_maximum_MO_coefficient());
+            constants::exp_cutoff = std::log(constants::density_accuracy / wavy.back().get_maximum_MO_coefficient());
 
             wavy[0].set_method(opt.method);
             wavy[0].set_multi(opt.mult);
