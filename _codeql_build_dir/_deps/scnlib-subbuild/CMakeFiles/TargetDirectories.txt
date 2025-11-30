@@ -1,0 +1,3 @@
+/home/runner/work/NoSpherA2/NoSpherA2/_codeql_build_dir/_deps/scnlib-subbuild/CMakeFiles/scnlib-populate.dir
+/home/runner/work/NoSpherA2/NoSpherA2/_codeql_build_dir/_deps/scnlib-subbuild/CMakeFiles/edit_cache.dir
+/home/runner/work/NoSpherA2/NoSpherA2/_codeql_build_dir/_deps/scnlib-subbuild/CMakeFiles/rebuild_cache.dir
