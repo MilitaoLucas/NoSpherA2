@@ -382,9 +382,18 @@ int main(int argc, char **argv)
             {
                 log_file << "Running SCF from input file: " << setw(44) << opt.occ << flush;
                 auto config = occ::io::read_occ_input_file(opt.occ);
-                auto wfn = occ::main::run_scf_external(config, true);
+                // Run SCF - this also writes output files (e.g., .owf.fchk)
+                occ::main::run_scf_external(config, true);
+                
+                // Load the generated FCHK file instead of using the SCF wavefunction directly
+                // This ensures the wavefunction is in the correct Cartesian format
+                std::filesystem::path fchk_path = opt.occ;
+                fchk_path.replace_extension(".owf.fchk");
+                log_file << "\nLoading generated FCHK: " << setw(44) << fchk_path.string() << flush;
+                
+                occ::qm::Wavefunction wfn = occ::qm::Wavefunction::load(fchk_path.string());
                 wavy.emplace_back(WFN(wfn));
-                wavy.back().set_path(opt.occ);
+                wavy.back().set_path(fchk_path);
             } else
             {
                 log_file << "Loading WFN from input file: " << setw(44) << opt.occ << flush;
