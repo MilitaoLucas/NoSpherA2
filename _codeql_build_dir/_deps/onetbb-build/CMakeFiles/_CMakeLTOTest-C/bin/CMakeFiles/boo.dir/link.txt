@@ -1,1 +1,0 @@
-/home/runner/work/NoSpherA2/.codeql-scratch/dbs/cpp/working/autobuild/bin/cc -g -flto=auto -fno-fat-lto-objects CMakeFiles/boo.dir/main.c.o -o boo  libfoo.a

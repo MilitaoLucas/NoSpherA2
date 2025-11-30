@@ -103,3 +103,4 @@ tests/SALTED/temp_rascaline.xyz
 tests/grown/temp_wavefunction.wfn
 build/
 _codeql_detected_source_root
+_codeql_build_dir/
