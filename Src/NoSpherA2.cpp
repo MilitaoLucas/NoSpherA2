@@ -403,16 +403,16 @@ int main(int argc, char **argv)
             }
             constants::exp_cutoff = std::log(constants::density_accuracy / wavy.back().get_maximum_MO_coefficient());
 
-            wavy[0].set_method(opt.method);
-            wavy[0].set_multi(opt.mult);
-            wavy[0].set_charge(opt.charge);
+            wavy.back().set_method(opt.method);
+            wavy.back().set_multi(opt.mult);
+            wavy.back().set_charge(opt.charge);
 
         } else {
             log_file << "Reading: " << setw(44) << opt.wfn << flush;
             wavy.emplace_back(opt.wfn, opt.charge, opt.mult, opt.debug);
-            wavy[0].set_method(opt.method);
-            wavy[0].set_multi(opt.mult);
-            wavy[0].set_charge(opt.charge);
+            wavy.back().set_method(opt.method);
+            wavy.back().set_multi(opt.mult);
+            wavy.back().set_charge(opt.charge);
         }
 
 
@@ -421,9 +421,9 @@ int main(int argc, char **argv)
 
         if (opt.ECP)
         {
-            wavy[0].set_has_ECPs(true, true, opt.ECP_mode);
+            wavy.back().set_has_ECPs(true, true, opt.ECP_mode);
         }
-        log_file << " done!\nNumber of atoms in Wavefunction file: " << wavy[0].get_ncen() << " Number of MOs: " << wavy[0].get_nmo() << endl;
+        log_file << " done!\nNumber of atoms in Wavefunction file: " << wavy.back().get_ncen() << " Number of MOs: " << wavy.back().get_nmo() << endl;
 
         // this one is for generation of an fchk file
         if (opt.fchk != "")
@@ -433,20 +433,20 @@ int main(int argc, char **argv)
             if (opt.debug)
                 log_file << "Checking for " << opt.basis_set_path << " " << exists(opt.basis_set_path) << endl;
             // err_checkf(exists(opt.basis_set_path), "Basis set file does not exist!", log_file);
-            wavy[0].set_basis_set_name(tmp.string());
+            wavy.back().set_basis_set_name(tmp.string());
 
             std::filesystem::path outputname;
             if (opt.fchk != "")
                 outputname = opt.fchk;
             else
             {
-                outputname = wavy[0].get_path();
+                outputname = wavy.back().get_path();
                 outputname.replace_extension(".fchk");
             }
-            wavy[0].assign_charge(wavy[0].calculate_charge());
+            wavy.back().assign_charge(wavy.back().calculate_charge());
             if (opt.mult == 0)
-                err_checkf(wavy[0].guess_multiplicity(log_file), "Error guessing multiplicity", log_file);
-            free_fchk(log_file, outputname, "", wavy[0], opt.debug, true);
+                err_checkf(wavy.back().guess_multiplicity(log_file), "Error guessing multiplicity", log_file);
+            free_fchk(log_file, outputname, "", wavy.back(), opt.debug, true);
         }
 
         // This one will calcualte a single tsc/tscb file form a single wfn
@@ -463,7 +463,7 @@ int main(int argc, char **argv)
                     log_file << "Entering scattering Factor Calculation!" << endl;
                 if (opt.electron_diffraction)
                     log_file << "Making Electron diffraction scattering factors, be carefull what you are doing!" << endl;
-                if (wavy[0].get_origin() == 7)
+                if (wavy.back().get_origin() == 7)
                     opt.iam_switch = true;
                 res = calculate_scattering_factors<itsc_block, std::vector<WFN>&>(
                         opt,
@@ -477,7 +477,7 @@ int main(int argc, char **argv)
                 // Fill WFN wil the primitives of the JKFit basis (currently hardcoded)
                 // const std::vector<std::vector<primitive>> basis(QZVP_JKfit.begin(), QZVP_JKfit.end());
 
-                SALTEDPredictor *temp_pred = new SALTEDPredictor(wavy[0], opt);
+                SALTEDPredictor *temp_pred = new SALTEDPredictor(wavy.back(), opt);
                 string df_basis_name = temp_pred->get_dfbasis_name();
                 filesystem::path salted_model_path = temp_pred->get_salted_filename();
                 log_file << "Using " << salted_model_path << " for the prediction" << endl;
@@ -508,7 +508,7 @@ int main(int argc, char **argv)
         std::cout.rdbuf(_coutbuf); // reset to standard output again
         std::cout << "Finished!" << endl;
         if (opt.write_CIF)
-            write_wfn_CIF(wavy[0], opt.wfn.replace_extension(".cif"));
+            write_wfn_CIF(wavy.back(), opt.wfn.replace_extension(".cif"));
         // log_file.close();
         return 0;
     }
