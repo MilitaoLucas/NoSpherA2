@@ -378,10 +378,26 @@ int main(int argc, char **argv)
     {
         if (opt.occ != "")
         {
-            // log_file << "Calculating WFN from input file: " << setw(44) << opt.wfn << flush;
-            // auto config = occ::io::read_occ_input_file(opt.occ);
-            // auto occ_wfn = occ::main::run_scf_external(config, true);
-            occ::qm::Wavefunction wfn = occ::qm::Wavefunction::load(opt.occ);
+            std::filesystem::path occ_path(opt.occ);
+            std::string ext = occ_path.extension().string();
+            occ::qm::Wavefunction wfn;
+            
+            if (ext == ".toml")
+            {
+                // .toml files are OCC input configuration files - run SCF calculation
+                log_file << "Running SCF calculation from input file: " << setw(44) << opt.occ << flush;
+                auto config = occ::io::read_occ_input_file(opt.occ);
+                wfn = occ::main::run_scf_external(config, true);
+                log_file << " done!" << endl;
+            }
+            else
+            {
+                // Other file types (fchk, molden, json, etc.) are wavefunction files - load directly
+                log_file << "Reading: " << setw(44) << opt.occ << flush;
+                wfn = occ::qm::Wavefunction::load(opt.occ);
+                log_file << " done!" << endl;
+            }
+            
             auto wfn_from_occ = WFN(wfn);
             wavy.emplace_back(wfn_from_occ);
             wavy[0].set_method(opt.method);
