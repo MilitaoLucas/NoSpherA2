@@ -378,41 +378,32 @@ int main(int argc, char **argv)
     {
         if (opt.occ != "")
         {
+            log_file << "Calculating WFN from input file: " << setw(44) << opt.wfn << flush;
             if (opt.occ.ends_with(".toml"))
             {
-                log_file << "Running SCF from input file: " << setw(44) << opt.occ << flush;
                 auto config = occ::io::read_occ_input_file(opt.occ);
-                // Run SCF - this also writes output files (e.g., .owf.fchk)
-                occ::main::run_scf_external(config, true);
-                
-                // Load the generated FCHK file instead of using the SCF wavefunction directly
-                // This ensures the wavefunction is in the correct Cartesian format
-                std::filesystem::path fchk_path = opt.occ;
-                fchk_path.replace_extension(".owf.fchk");
-                log_file << "\nLoading generated FCHK: " << setw(44) << fchk_path.string() << flush;
-                
-                occ::qm::Wavefunction wfn = occ::qm::Wavefunction::load(fchk_path.string());
-                wavy.emplace_back(WFN(wfn));
-                wavy.back().set_path(fchk_path);
+                auto wfn = occ::main::run_scf_external(config, true);
+                auto wfn_from_occ = WFN(wfn);
+                wavy.emplace_back(wfn_from_occ);
+                constants::exp_cutoff = std::log(constants::density_accuracy / wfn_from_occ.get_maximum_MO_coefficient());
             } else
             {
-                log_file << "Loading WFN from input file: " << setw(44) << opt.occ << flush;
                 occ::qm::Wavefunction wfn = occ::qm::Wavefunction::load(opt.occ);
-                wavy.emplace_back(WFN(wfn));
-                wavy.back().set_path(opt.occ);
+                auto wfn_from_occ = WFN(wfn);
+                wavy.emplace_back(wfn_from_occ);
+                constants::exp_cutoff = std::log(constants::density_accuracy / wfn_from_occ.get_maximum_MO_coefficient());
             }
-            constants::exp_cutoff = std::log(constants::density_accuracy / wavy.back().get_maximum_MO_coefficient());
 
-            wavy.back().set_method(opt.method);
-            wavy.back().set_multi(opt.mult);
-            wavy.back().set_charge(opt.charge);
+            wavy[0].set_method(opt.method);
+            wavy[0].set_multi(opt.mult);
+            wavy[0].set_charge(opt.charge);
 
         } else {
             log_file << "Reading: " << setw(44) << opt.wfn << flush;
             wavy.emplace_back(opt.wfn, opt.charge, opt.mult, opt.debug);
-            wavy.back().set_method(opt.method);
-            wavy.back().set_multi(opt.mult);
-            wavy.back().set_charge(opt.charge);
+            wavy[0].set_method(opt.method);
+            wavy[0].set_multi(opt.mult);
+            wavy[0].set_charge(opt.charge);
         }
 
 
@@ -421,9 +412,9 @@ int main(int argc, char **argv)
 
         if (opt.ECP)
         {
-            wavy.back().set_has_ECPs(true, true, opt.ECP_mode);
+            wavy[0].set_has_ECPs(true, true, opt.ECP_mode);
         }
-        log_file << " done!\nNumber of atoms in Wavefunction file: " << wavy.back().get_ncen() << " Number of MOs: " << wavy.back().get_nmo() << endl;
+        log_file << " done!\nNumber of atoms in Wavefunction file: " << wavy[0].get_ncen() << " Number of MOs: " << wavy[0].get_nmo() << endl;
 
         // this one is for generation of an fchk file
         if (opt.fchk != "")
@@ -433,20 +424,20 @@ int main(int argc, char **argv)
             if (opt.debug)
                 log_file << "Checking for " << opt.basis_set_path << " " << exists(opt.basis_set_path) << endl;
             // err_checkf(exists(opt.basis_set_path), "Basis set file does not exist!", log_file);
-            wavy.back().set_basis_set_name(tmp.string());
+            wavy[0].set_basis_set_name(tmp.string());
 
             std::filesystem::path outputname;
             if (opt.fchk != "")
                 outputname = opt.fchk;
             else
             {
-                outputname = wavy.back().get_path();
+                outputname = wavy[0].get_path();
                 outputname.replace_extension(".fchk");
             }
-            wavy.back().assign_charge(wavy.back().calculate_charge());
+            wavy[0].assign_charge(wavy[0].calculate_charge());
             if (opt.mult == 0)
-                err_checkf(wavy.back().guess_multiplicity(log_file), "Error guessing multiplicity", log_file);
-            free_fchk(log_file, outputname, "", wavy.back(), opt.debug, true);
+                err_checkf(wavy[0].guess_multiplicity(log_file), "Error guessing multiplicity", log_file);
+            free_fchk(log_file, outputname, "", wavy[0], opt.debug, true);
         }
 
         // This one will calcualte a single tsc/tscb file form a single wfn
@@ -463,7 +454,7 @@ int main(int argc, char **argv)
                     log_file << "Entering scattering Factor Calculation!" << endl;
                 if (opt.electron_diffraction)
                     log_file << "Making Electron diffraction scattering factors, be carefull what you are doing!" << endl;
-                if (wavy.back().get_origin() == 7)
+                if (wavy[0].get_origin() == 7)
                     opt.iam_switch = true;
                 res = calculate_scattering_factors<itsc_block, std::vector<WFN>&>(
                         opt,
@@ -477,7 +468,7 @@ int main(int argc, char **argv)
                 // Fill WFN wil the primitives of the JKFit basis (currently hardcoded)
                 // const std::vector<std::vector<primitive>> basis(QZVP_JKfit.begin(), QZVP_JKfit.end());
 
-                SALTEDPredictor *temp_pred = new SALTEDPredictor(wavy.back(), opt);
+                SALTEDPredictor *temp_pred = new SALTEDPredictor(wavy[0], opt);
                 string df_basis_name = temp_pred->get_dfbasis_name();
                 filesystem::path salted_model_path = temp_pred->get_salted_filename();
                 log_file << "Using " << salted_model_path << " for the prediction" << endl;
@@ -508,7 +499,7 @@ int main(int argc, char **argv)
         std::cout.rdbuf(_coutbuf); // reset to standard output again
         std::cout << "Finished!" << endl;
         if (opt.write_CIF)
-            write_wfn_CIF(wavy.back(), opt.wfn.replace_extension(".cif"));
+            write_wfn_CIF(wavy[0], opt.wfn.replace_extension(".cif"));
         // log_file.close();
         return 0;
     }
@@ -526,12 +517,12 @@ int main(int argc, char **argv)
     {
         err_checkf(opt.wfn != "", "No Wavefunction given!", log_file);
         wavy.emplace_back(opt.wfn, opt.debug);
-        wavy.back().write_wfn("converted.wfn", false, false);
+        wavy[0].write_wfn("converted.wfn", false, false);
         log_file.flush();
         std::cout.rdbuf(_coutbuf); // reset to standard output again
         std::cout << "Finished!" << endl;
         if (opt.write_CIF)
-            write_wfn_CIF(wavy.back(), opt.wfn.replace_extension(".cif"));
+            write_wfn_CIF(wavy[0], opt.wfn.replace_extension(".cif"));
         return 0;
     }
 
