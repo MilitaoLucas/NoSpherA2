@@ -105,3 +105,4 @@ tests/grown/temp_wavefunction.wfn
 # Build directories
 build/
 build_debug/
+_codeql_detected_source_root
