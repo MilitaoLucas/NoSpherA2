@@ -380,6 +380,8 @@ int main(int argc, char **argv)
         {
             std::filesystem::path occ_path(opt.occ);
             std::string ext = occ_path.extension().string();
+            // Convert extension to lowercase for case-insensitive comparison
+            std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
             occ::qm::Wavefunction wfn;
             
             if (ext == ".toml")
