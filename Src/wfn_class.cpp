@@ -112,11 +112,25 @@ WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
     vec con_coefs;
     VectorXd shellType(shells.size()+1);
     nex = 0;
+    int nbf_spherical = 0;
+    int nbf_cartesian = 0;
     for (const auto shell : shells)
     {
         int l = shell.l;
         int n_cart = (l+1)*(l+2)/2;
+        int n_sph = 2*l + 1;
         nex += n_cart * shell.exponents.size();
+        nbf_spherical += n_sph;
+        nbf_cartesian += n_cart;
+    }
+    // Determine if the wavefunction uses spherical (pure) or Cartesian basis
+    // by comparing occ_WF.nbf with expected counts
+    bool is_spherical = (occ_WF.nbf == nbf_spherical);
+    bool is_cartesian = (occ_WF.nbf == nbf_cartesian);
+    if (!is_spherical && !is_cartesian) {
+        throw std::runtime_error("WFN constructor: nbf (" + std::to_string(occ_WF.nbf) + 
+            ") doesn't match expected spherical (" + std::to_string(nbf_spherical) + 
+            ") or Cartesian (" + std::to_string(nbf_cartesian) + ") basis function count");
     }
     auto mo_go = occ::io::conversion::orb::to_gaussian_order(occ_WF.basis, occ_WF.mo);
     Vector<int, 10> d_orbital_corr {0, 1, 2, 6, 3, 4, 7, 8, 5, 9};
@@ -177,26 +191,36 @@ WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
             p = (2.0*l+3.0)/4.0;
             scalar = std::pow(2.0, 0.5 * l)/std::pow(constants::PI3, 0.25);
             const auto& A = MappedMatrices[l];
-            n_sph = A.cols();
+            n_sph = A.cols();  // number of spherical functions for this shell
             n_prim = shell.num_primitives();
-            n_cart = A.rows();
+            n_cart = A.rows();  // number of Cartesian functions for this shell
             chunk_size = n_cart * n_prim;
             const auto& exp_arr = shell.exponents.array();
             // volatile int coeffsize = MOs[n].get_coefficients().size();
             // normalizing the contraction_coeffs
             const auto& CC = shell.u_coefficients.array();
             const VectorXd& contraction_coeffs = scalar*(2*exp_arr).pow(p)*CC;
-            const auto& MOc = mo_go.C.block(basis_offset, n, n_sph, 1);
             Map<MatrixXd> dest_block(coeffs_ptr + write_cursor, n_prim, n_cart);
 
-            MatrixXd temp = A * MOc;
-            // Map<const VectorXd> contraction(contraction_coeffs.data(), n_prim);
-            // |C>(A|MOc>)^T Has dimensions of (num_subshells(l), m). m: contraction \in R^{(m,1)})
-            MatrixXd temp2 = contraction_coeffs*temp.transpose();
-            dest_block = temp2;
+            if (is_spherical) {
+                // Spherical basis: extract n_sph coefficients and transform to n_cart Cartesian
+                const auto& MOc = mo_go.C.block(basis_offset, n, n_sph, 1);
+                MatrixXd temp = A * MOc;
+                // Map<const VectorXd> contraction(contraction_coeffs.data(), n_prim);
+                // |C>(A|MOc>)^T Has dimensions of (num_subshells(l), m). m: contraction \in R^{(m,1)})
+                MatrixXd temp2 = contraction_coeffs*temp.transpose();
+                dest_block = temp2;
+                basis_offset += n_sph;
+            } else {
+                // Cartesian basis: extract n_cart coefficients directly
+                const auto& MOc = mo_go.C.block(basis_offset, n, n_cart, 1);
+                // No transformation needed, just apply contraction coefficients
+                MatrixXd temp2 = contraction_coeffs * MOc.transpose();
+                dest_block = temp2;
+                basis_offset += n_cart;
+            }
 
             write_cursor += chunk_size;
-            basis_offset += n_sph;
         }
     }
     constants::exp_cutoff = std::log(constants::density_accuracy / get_maximum_MO_coefficient());
