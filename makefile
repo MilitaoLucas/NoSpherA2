@@ -23,6 +23,12 @@ endif
 
 MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+# OCC library source directory
+OCC_REPO := https://github.com/MilitaoLucas/occ
+OCC_TAG := main_with_libs
+OCC_SRC_DIR := $(MAKEFILE_DIR)/Lib/occ_src
+OCC_INSTALL_DIR := $(MAKEFILE_DIR)/Lib/occ_install
+
 all: check_rust NoSpherA2
 
 # --- Cross-platform rust check ---
@@ -97,6 +103,85 @@ featomic_arm64: check_rust
 		echo 'Skipping featomic build, Lib/featomic_install/lib/libfeatomic.a already exists'; \
 	fi
 
+# --- OCC Library Build ---
+# Build occ library from source for Linux
+ifeq ($(NAME),LINUX)
+occ:
+	@if [ ! -f $(OCC_INSTALL_DIR)/lib/libocc_main.a ]; then \
+		echo 'Building occ library...'; \
+		mkdir -p $(OCC_SRC_DIR) && \
+		if [ ! -d "$(OCC_SRC_DIR)/.git" ]; then \
+			git clone --depth 1 --branch $(OCC_TAG) $(OCC_REPO) $(OCC_SRC_DIR); \
+		fi && \
+		cd $(OCC_SRC_DIR) && \
+		mkdir -p build && \
+		cd build && \
+		cmake -DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(OCC_INSTALL_DIR) \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DWITH_PYTHON_BINDINGS=OFF \
+			-DENABLE_HOST_OPT=OFF \
+			-DUSE_FORTRAN=ON \
+			.. && \
+		make -j$$(nproc) && \
+		make install; \
+	else \
+		echo 'Skipping occ build, $(OCC_INSTALL_DIR)/lib/libocc_main.a already exists'; \
+	fi
+endif
+
+# Build occ library for macOS (architecture-specific)
+ifeq ($(NAME),MAC)
+occ: occ_$(NATIVE_ARCH)
+	@echo Built occ for $(NATIVE_ARCH)
+
+occ_arm64:
+	@if [ ! -f $(OCC_INSTALL_DIR)/lib/libocc_main.a ]; then \
+		echo 'Building occ library for arm64...'; \
+		mkdir -p $(OCC_SRC_DIR) && \
+		if [ ! -d "$(OCC_SRC_DIR)/.git" ]; then \
+			git clone --depth 1 --branch $(OCC_TAG) $(OCC_REPO) $(OCC_SRC_DIR); \
+		fi && \
+		cd $(OCC_SRC_DIR) && \
+		mkdir -p build && \
+		cd build && \
+		cmake -DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(OCC_INSTALL_DIR) \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DWITH_PYTHON_BINDINGS=OFF \
+			-DENABLE_HOST_OPT=OFF \
+			-DCMAKE_OSX_ARCHITECTURES=arm64 \
+			.. && \
+		make -j$$(sysctl -n hw.ncpu) && \
+		make install; \
+	else \
+		echo 'Skipping occ build, $(OCC_INSTALL_DIR)/lib/libocc_main.a already exists'; \
+	fi
+
+occ_x86_64:
+	@if [ ! -f $(OCC_INSTALL_DIR)_x86/lib/libocc_main.a ]; then \
+		echo 'Building occ library for x86_64...'; \
+		mkdir -p $(OCC_SRC_DIR) && \
+		if [ ! -d "$(OCC_SRC_DIR)/.git" ]; then \
+			git clone --depth 1 --branch $(OCC_TAG) $(OCC_REPO) $(OCC_SRC_DIR); \
+		fi && \
+		cd $(OCC_SRC_DIR) && \
+		mkdir -p build_x86_64 && \
+		cd build_x86_64 && \
+		cmake -DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(OCC_INSTALL_DIR)_x86 \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DWITH_PYTHON_BINDINGS=OFF \
+			-DENABLE_HOST_OPT=OFF \
+			-DCMAKE_OSX_ARCHITECTURES=x86_64 \
+			.. && \
+		make -j$$(sysctl -n hw.ncpu) && \
+		make install; \
+	else \
+		echo 'Skipping occ build, $(OCC_INSTALL_DIR)_x86/lib/libocc_main.a already exists'; \
+	fi
+endif
+
 intel_ROOT := $(CURDIR)/Lib/MKL
 IntelMKL:
 ifeq ($(NAME),WINDOWS)
@@ -127,12 +212,12 @@ clean:
 endif
 
 ifeq ($(NAME),LINUX)
-NoSpherA2: IntelMKL featomic
+NoSpherA2: IntelMKL featomic occ
 	@echo Start making Linux executable
 	@rm -f NoSpherA2
 	@cd Linux && rm -f NoSpherA2 && make all -j
 
-NoSpherA2_Debug: IntelMKL featomic
+NoSpherA2_Debug: IntelMKL featomic occ
 	@echo Building NoSpherA2_Debug for $(NAME)
 	@rm -f NoSpherA2_Debug
 	@cd Linux && rm -f NoSpherA2_Debug && make NoSpherA2_Debug -j
@@ -143,22 +228,22 @@ clean:
 endif
 
 ifeq ($(NAME),MAC)
-NoSpherA2: IntelMKL featomic_$(NATIVE_ARCH)
+NoSpherA2: IntelMKL featomic_$(NATIVE_ARCH) occ_$(NATIVE_ARCH)
 	@echo Start making Mac $(NATIVE_ARCH) executable
 	@rm -f NoSpherA2_$(NATIVE_ARCH)
 	@cd Mac && rm -f NoSpherA2_$(NATIVE_ARCH) && make NoSpherA2_$(NATIVE_ARCH) -j && cp NoSpherA2_$(NATIVE_ARCH) ../NoSpherA2
 
-NoSpherA2_arm64: IntelMKL featomic_arm64
+NoSpherA2_arm64: IntelMKL featomic_arm64 occ_arm64
 	@echo Start making Mac arm64 executable
 	@rm -f NoSpherA2_arm64
 	@cd Mac && rm -f NoSpherA2_arm64 && make NoSpherA2_arm64 -j && cp NoSpherA2_arm64 ../NoSpherA2
 
-NoSpherA2_x86_64: IntelMKL featomic_x86_64
+NoSpherA2_x86_64: IntelMKL featomic_x86_64 occ_x86_64
 	@echo Start making Mac x86_64 executable
 	@rm -f NoSpherA2_x86_64
 	@cd Mac && rm -f NoSpherA2_x86_64 && make NoSpherA2_x86_64 -j && cp NoSpherA2_x86_64 ../NoSpherA2_x86_64
 
-NoSpherA2_lipo: IntelMKL featomic_arm64 featomic_x86_64
+NoSpherA2_lipo: IntelMKL featomic_arm64 featomic_x86_64 occ_arm64 occ_x86_64
 	@echo Start making Mac universal executable
 	@rm -f NoSpherA2
 	@cd Mac && rm -f NoSpherA2 && make NoSpherA2 -j
@@ -173,4 +258,4 @@ tests: NoSpherA2
 	make -C tests all -k -B
 
 
-.PHONY: test tests NoSpherA2 all NoSpherA2_Debug clean IntelMKL featomic check_rust
+.PHONY: test tests NoSpherA2 all NoSpherA2_Debug clean IntelMKL featomic check_rust occ occ_arm64 occ_x86_64

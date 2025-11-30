@@ -15,12 +15,45 @@ MKL_THREADING ?= INTEL     # INTEL | SEQ  (INTEL = mkl_intel_thread + libiomp5)
 
 # Source & include roots
 SRC_DIR := ../Src
-INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include
+INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../Lib/occ_install/include
 
 # Featomic local libs
 LIBRASCALINE   := ../Lib/featomic_install/lib/libfeatomic.a
 LIBRASCALINE   += ../Lib/featomic_install/lib/libmetatensor.a
 LIBRASCALINE_I := ../Lib/featomic_install/include
+
+# OCC library - all static libraries in proper link order
+OCC_INSTALL_DIR := ../Lib/occ_install
+OCC_LIB_DIR := $(OCC_INSTALL_DIR)/lib
+OCC_LIBS := $(OCC_LIB_DIR)/libocc_main.a \
+            $(OCC_LIB_DIR)/libocc_driver.a \
+            $(OCC_LIB_DIR)/libocc_opt.a \
+            $(OCC_LIB_DIR)/libocc_io.a \
+            $(OCC_LIB_DIR)/libocc_qm.a \
+            $(OCC_LIB_DIR)/libocc_dft.a \
+            $(OCC_LIB_DIR)/libocc_gto.a \
+            $(OCC_LIB_DIR)/libocc_crystal.a \
+            $(OCC_LIB_DIR)/libocc_interaction.a \
+            $(OCC_LIB_DIR)/libocc_solvent.a \
+            $(OCC_LIB_DIR)/libocc_xdm.a \
+            $(OCC_LIB_DIR)/libocc_dma.a \
+            $(OCC_LIB_DIR)/libocc_disp.a \
+            $(OCC_LIB_DIR)/libocc_slater.a \
+            $(OCC_LIB_DIR)/libocc_geometry.a \
+            $(OCC_LIB_DIR)/libocc_isosurface.a \
+            $(OCC_LIB_DIR)/libocc_descriptors.a \
+            $(OCC_LIB_DIR)/libocc_sht.a \
+            $(OCC_LIB_DIR)/libocc_cg.a \
+            $(OCC_LIB_DIR)/libocc_elastic_fit.a \
+            $(OCC_LIB_DIR)/libocc_xtb.a \
+            $(OCC_LIB_DIR)/libocc_core.a \
+            $(OCC_LIB_DIR)/libcint.a \
+            $(OCC_LIB_DIR)/liblibecpint_static.a \
+            $(OCC_LIB_DIR)/libgau2grid_static.a \
+            $(OCC_LIB_DIR)/libfmt.a \
+            $(OCC_LIB_DIR)/libspdlog.a \
+            $(OCC_LIB_DIR)/libtbb.a \
+            $(OCC_LIB_DIR)/libtbbmalloc.a
 
 # ---- Compiler flags (no -fopenmp at link time; only at compile time) ----
 GCC_OPTS       := -std=c++2b -O3 -c -fmessage-length=0 -fopenmp -static -MMD -MP \
@@ -111,14 +144,14 @@ auxiliary_basis.o_d: basis_set_converter
 # ---- Link ----
 NoSpherA2: ${OBJS}
 	@echo 'Building target: $@'
-	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2" ${OBJS} ${LIBRASCALINE} $(MKL_LINK_FLAGS) ${LIBS}
+	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2" ${OBJS} ${OCC_LIBS} ${LIBRASCALINE} $(MKL_LINK_FLAGS) ${LIBS} -latomic -lgfortran
 	cp NoSpherA2 ../
 	cp ../Lib/MKL/compiler/2025.2/lib/libiomp5.so ../
 	@echo 'Done building NoSpherA2'
 
 NoSpherA2_Debug: ${OBJS_d}
 	@echo 'Building target: $@'
-	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2_Debug" ${OBJS_d} ${LIBRASCALINE} $(MKL_LINK_FLAGS) ${LIBS}
+	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2_Debug" ${OBJS_d} ${OCC_LIBS} ${LIBRASCALINE} $(MKL_LINK_FLAGS) ${LIBS} -latomic -lgfortran
 	cp NoSpherA2_Debug ../
 	cp ../Lib/MKL/compiler/2025.2/lib/libiomp5.so ../
 	@echo 'Done building Debug version of NoSpherA2'
