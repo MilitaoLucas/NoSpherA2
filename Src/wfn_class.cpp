@@ -188,6 +188,10 @@ WFN::WFN(occ::qm::Wavefunction& occ_WF) : WFN()
         coeffs_ptr = MOs[n].get_coefficient_ptr();
         for (const auto & shell : shells){
             l = shell.l;
+            if (l >= static_cast<int>(MappedMatrices.size())) {
+                throw std::runtime_error("WFN constructor: Shell angular momentum l=" + std::to_string(l) + 
+                    " exceeds maximum supported value of " + std::to_string(MappedMatrices.size() - 1));
+            }
             p = (2.0*l+3.0)/4.0;
             scalar = std::pow(2.0, 0.5 * l)/std::pow(constants::PI3, 0.25);
             const auto& A = MappedMatrices[l];
