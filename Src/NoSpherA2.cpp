@@ -526,12 +526,12 @@ int main(int argc, char **argv)
     {
         err_checkf(opt.wfn != "", "No Wavefunction given!", log_file);
         wavy.emplace_back(opt.wfn, opt.debug);
-        wavy[0].write_wfn("converted.wfn", false, false);
+        wavy.back().write_wfn("converted.wfn", false, false);
         log_file.flush();
         std::cout.rdbuf(_coutbuf); // reset to standard output again
         std::cout << "Finished!" << endl;
         if (opt.write_CIF)
-            write_wfn_CIF(wavy[0], opt.wfn.replace_extension(".cif"));
+            write_wfn_CIF(wavy.back(), opt.wfn.replace_extension(".cif"));
         return 0;
     }
 
