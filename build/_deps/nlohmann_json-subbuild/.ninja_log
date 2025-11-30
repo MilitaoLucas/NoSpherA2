@@ -1,0 +1,21 @@
+# ninja log v7
+0	4	1764471211202081398	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-mkdir	16e453f3b6f25ac
+0	4	1764471211202081398	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-mkdir	16e453f3b6f25ac
+4	9523	1764471220721110075	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-download	18e95a14dcf936f9
+4	9523	1764471220721110075	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-download	18e95a14dcf936f9
+9523	9532	1764471220721110075	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-update	bc4d718467d5e591
+9523	9532	1764471220721110075	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-update	bc4d718467d5e591
+9532	9535	1764471220733110112	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-patch	69963284ab67a1
+9532	9535	1764471220733110112	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-patch	69963284ab67a1
+9535	9539	1764471220737110124	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-configure	acac49abca813c53
+9535	9539	1764471220737110124	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-configure	acac49abca813c53
+9539	9543	1764471220740110133	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-build	e6c7f59e94498c74
+9539	9543	1764471220740110133	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-build	e6c7f59e94498c74
+9543	9546	1764471220744110145	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-install	db8413f8f7500930
+9543	9546	1764471220744110145	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-install	db8413f8f7500930
+9546	9550	1764471220747110154	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-test	915b1a09e9563629
+9546	9550	1764471220747110154	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-test	915b1a09e9563629
+9550	9555	1764471220752110169	CMakeFiles/nlohmann_json-populate-complete	fda46a538b50c49c
+9550	9555	1764471220752110169	nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-done	fda46a538b50c49c
+9550	9555	1764471220752110169	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/CMakeFiles/nlohmann_json-populate-complete	fda46a538b50c49c
+9550	9555	1764471220752110169	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/nlohmann_json-subbuild/nlohmann_json-populate-prefix/src/nlohmann_json-populate-stamp/nlohmann_json-populate-done	fda46a538b50c49c

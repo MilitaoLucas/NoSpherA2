@@ -378,21 +378,21 @@ int main(int argc, char **argv)
     {
         if (opt.occ != "")
         {
-            log_file << "Calculating WFN from input file: " << setw(44) << opt.wfn << flush;
             if (opt.occ.ends_with(".toml"))
             {
+                log_file << "Running SCF from input file: " << setw(44) << opt.occ << flush;
                 auto config = occ::io::read_occ_input_file(opt.occ);
                 auto wfn = occ::main::run_scf_external(config, true);
-                auto wfn_from_occ = WFN(wfn);
-                wavy.emplace_back(wfn_from_occ);
-                constants::exp_cutoff = std::log(constants::density_accuracy / wfn_from_occ.get_maximum_MO_coefficient());
+                wavy.emplace_back(WFN(wfn));
+                wavy[0].set_path(opt.occ);
             } else
             {
+                log_file << "Loading WFN from input file: " << setw(44) << opt.occ << flush;
                 occ::qm::Wavefunction wfn = occ::qm::Wavefunction::load(opt.occ);
-                auto wfn_from_occ = WFN(wfn);
-                wavy.emplace_back(wfn_from_occ);
-                constants::exp_cutoff = std::log(constants::density_accuracy / wfn_from_occ.get_maximum_MO_coefficient());
+                wavy.emplace_back(WFN(wfn));
+                wavy[0].set_path(opt.occ);
             }
+            constants::exp_cutoff = std::log(constants::density_accuracy / wavy[0].get_maximum_MO_coefficient());
 
             wavy[0].set_method(opt.method);
             wavy[0].set_multi(opt.mult);

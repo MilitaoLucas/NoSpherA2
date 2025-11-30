@@ -1,0 +1,21 @@
+# ninja log v7
+0	4	1764471201809053381	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir	f414625c5614f540
+0	4	1764471201809053381	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir	f414625c5614f540
+4	1633	1764471203439058239	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download	24eb5eb670d13927
+4	1633	1764471203439058239	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download	24eb5eb670d13927
+1633	1793	1764471203439058239	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update	31c706ca524cf74f
+1633	1793	1764471203439058239	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update	31c706ca524cf74f
+1793	1797	1764471203602058725	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch	8806f3782526a5a8
+1793	1797	1764471203602058725	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch	8806f3782526a5a8
+1797	1800	1764471203606058737	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure	d941716a79688e17
+1797	1800	1764471203606058737	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure	d941716a79688e17
+1800	1804	1764471203610058748	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build	a94dfca8af688e2f
+1800	1804	1764471203610058748	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build	a94dfca8af688e2f
+1804	1808	1764471203613058757	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install	d6874567f3c29afa
+1804	1808	1764471203613058757	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install	d6874567f3c29afa
+1808	1811	1764471203617058769	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test	929d523b4e9eb192
+1808	1811	1764471203617058769	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test	929d523b4e9eb192
+1811	1816	1764471203622058784	CMakeFiles/spdlog-populate-complete	1fd079a1fa092207
+1811	1816	1764471203622058784	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-done	1fd079a1fa092207
+1811	1816	1764471203622058784	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate-complete	1fd079a1fa092207
+1811	1816	1764471203622058784	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-done	1fd079a1fa092207

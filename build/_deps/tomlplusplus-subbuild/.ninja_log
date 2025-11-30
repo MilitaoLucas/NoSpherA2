@@ -1,0 +1,21 @@
+# ninja log v7
+0	4	1764471203741059139	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-mkdir	df9209d4cc4945a8
+0	4	1764471203741059139	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-mkdir	df9209d4cc4945a8
+4	1465	1764471205201063490	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-download	748db692e16c504b
+4	1465	1764471205201063490	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-download	748db692e16c504b
+1465	1473	1764471205202063493	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-update	622ca654b68faeac
+1465	1473	1764471205202063493	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-update	622ca654b68faeac
+1473	1477	1764471205213063526	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-patch	a5cc13e53719da06
+1473	1477	1764471205213063526	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-patch	a5cc13e53719da06
+1477	1480	1764471205217063537	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-configure	35d89fb261b4469e
+1477	1480	1764471205217063537	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-configure	35d89fb261b4469e
+1480	1484	1764471205220063547	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-build	f8e5f40d86b61648
+1480	1484	1764471205220063547	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-build	f8e5f40d86b61648
+1484	1487	1764471205224063558	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-install	b96ff9126bc0b78c
+1484	1487	1764471205224063558	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-install	b96ff9126bc0b78c
+1487	1491	1764471205227063567	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-test	94841ad6a7bb0cef
+1487	1491	1764471205227063567	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-test	94841ad6a7bb0cef
+1491	1495	1764471205232063582	CMakeFiles/tomlplusplus-populate-complete	6d9b78864a9978fc
+1491	1495	1764471205232063582	tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-done	6d9b78864a9978fc
+1491	1495	1764471205232063582	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/CMakeFiles/tomlplusplus-populate-complete	6d9b78864a9978fc
+1491	1495	1764471205232063582	/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-done	6d9b78864a9978fc

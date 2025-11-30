@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/CMakeFiles/occ-populate"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/CMakeFiles/occ-populate.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/CMakeFiles/occ-populate-complete.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-build.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-configure.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-download.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-install.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-patch.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-test.rule"
+		},
+		{
+			"file" : "/home/runner/work/NoSpherA2/NoSpherA2/build/_deps/occ-subbuild/occ-populate-prefix/src/occ-populate-stamp/occ-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"occ-populate"
+		],
+		"name" : "occ-populate"
+	}
+}
