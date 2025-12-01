@@ -15,16 +15,17 @@ MKL_THREADING ?= INTEL     # INTEL | SEQ  (INTEL = mkl_intel_thread + libiomp5)
 
 # Source & include roots
 SRC_DIR := ../Src
-INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../Lib/occ_install/include
+INC_DIRS := ../Src ../Lib ../Lib/featomic_install/include ../Lib/occ_install/include ../Lib/occ_src/include
 
 # Featomic local libs
 LIBRASCALINE   := ../Lib/featomic_install/lib/libfeatomic.a
-LIBRASCALINE   += ../Lib/featomic_install/lib/libmetatensor.a
+LIBRASCALINE   += ../Lib/featomic_install/lib64/libmetatensor.a
 LIBRASCALINE_I := ../Lib/featomic_install/include
 
 # OCC library - all static libraries in proper link order
 OCC_INSTALL_DIR := ../Lib/occ_install
-OCC_LIB_DIR := $(OCC_INSTALL_DIR)/lib
+OCC_INCLUDE_DIR := ../Lib/include
+OCC_LIB_DIR := $(OCC_INSTALL_DIR)/lib64
 OCC_LIBS := $(OCC_LIB_DIR)/libocc_main.a \
             $(OCC_LIB_DIR)/libocc_driver.a \
             $(OCC_LIB_DIR)/libocc_opt.a \
@@ -53,7 +54,7 @@ OCC_LIBS := $(OCC_LIB_DIR)/libocc_main.a \
             $(OCC_LIB_DIR)/libfmt.a \
             $(OCC_LIB_DIR)/libspdlog.a \
             $(OCC_LIB_DIR)/libtbb.a \
-            $(OCC_LIB_DIR)/libtbbmalloc.a
+#            $(OCC_LIB_DIR)/libtbbmalloc.a
 
 # ---- Compiler flags (no -fopenmp at link time; only at compile time) ----
 GCC_OPTS       := -std=c++2b -O3 -c -fmessage-length=0 -fopenmp -static -MMD -MP \
