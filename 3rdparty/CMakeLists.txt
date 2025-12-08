@@ -10,8 +10,8 @@ if (NOT WIN32 AND USE_CCACHE)
     # Set ccache options if provided
     if (CCACHE_OPTIONS)
         foreach(option ${CCACHE_OPTIONS})
-            # Match pattern "VAR=value" and validate variable name
-            if(option MATCHES "^([A-Za-z_][A-Za-z0-9_]*)=(.+)$")
+            # Match pattern "VAR=value" and validate variable name (value can be empty)
+            if(option MATCHES "^([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
                 set(ENV{${CMAKE_MATCH_1}} ${CMAKE_MATCH_2})
                 message(STATUS "Setting ccache option: ${CMAKE_MATCH_1}=${CMAKE_MATCH_2}")
             else()
