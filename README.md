@@ -69,15 +69,52 @@ make
 #### **Prerequisites**
 - **Xcode Command Line Tools**
 - **CMake** (install via Homebrew if needed: `brew install cmake`)
-- **rustup** (install via Homebrew: `brew install rustup-init && rustup-init`; might requrie restarting the terminal to load properly)
+- **Ninja** (install via Homebrew: `brew install ninja`)
+- **libomp** (install via Homebrew: `brew install libomp`)
+- **rustup** (install via Homebrew: `brew install rustup-init && rustup-init`; might require restarting the terminal to load properly)
+- **ccache** (optional, for faster rebuilds: `brew install ccache`)
 
-#### **Building NoSpherA2**
+#### **Building NoSpherA2 with Make**
 
 ```sh
 make
 ```
 
 ✅ **The executable will be located in the main folder:** `NoSpherA2`.
+
+#### **Building NoSpherA2 with CMake**
+
+For more control over the build process, you can use CMake directly:
+
+```sh
+# Create build directory
+mkdir -p build
+cd build
+
+# Configure with Ninja and custom options
+# Note: Adjust OpenMP_ROOT path based on your system:
+#   - Apple Silicon: /opt/homebrew/opt/libomp
+#   - Intel Mac: /usr/local/opt/libomp
+cmake -GNinja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DOpenMP_ROOT=/opt/homebrew/opt/libomp \
+  -DWITH_CLANG_TIDY=OFF \
+  -DUSE_CCACHE=YES \
+  -DCCACHE_OPTIONS="CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store" \
+  ..
+
+# Build
+cmake --build . --target NoSpherA2 -j
+
+# The executable will be at: build/Src/NoSpherA2
+```
+
+**Available CMake Options:**
+- `-DOpenMP_ROOT=<path>` - Specify OpenMP installation path (auto-detected if not set)
+- `-DUSE_CCACHE=YES/NO` - Enable/disable ccache (default: YES)
+- `-DCCACHE_OPTIONS="opt1=val1;opt2=val2"` - Set ccache environment options
+- `-DWITH_CLANG_TIDY=ON/OFF` - Enable/disable clang-tidy (default: OFF)
+- `-DCMAKE_BUILD_TYPE=Release/Debug` - Build type
 
 ---
 

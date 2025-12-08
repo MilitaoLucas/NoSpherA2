@@ -57,6 +57,27 @@ target_precompile_headers(libnosphera2 PRIVATE
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Set hints for OpenMP discovery on macOS
+    # Support both Intel (/usr/local/opt/libomp) and Apple Silicon (/opt/homebrew/opt/libomp)
+    if(NOT OpenMP_ROOT)
+        # Try to detect OpenMP location if not explicitly set
+        if(EXISTS "/opt/homebrew/opt/libomp")
+            set(OpenMP_ROOT "/opt/homebrew/opt/libomp" CACHE PATH "OpenMP root directory")
+        elseif(EXISTS "/usr/local/opt/libomp")
+            set(OpenMP_ROOT "/usr/local/opt/libomp" CACHE PATH "OpenMP root directory")
+        endif()
+    endif()
+    
+    # Provide additional hints for FindOpenMP
+    if(OpenMP_ROOT)
+        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -I${OpenMP_ROOT}/include" CACHE STRING "C OpenMP flags")
+        set(OpenMP_C_LIB_NAMES "omp" CACHE STRING "OpenMP library name")
+        set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${OpenMP_ROOT}/include" CACHE STRING "CXX OpenMP flags")
+        set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "OpenMP library name")
+        set(OpenMP_omp_LIBRARY "${OpenMP_ROOT}/lib/libomp.dylib" CACHE PATH "OpenMP library")
+        message(STATUS "Using OpenMP from: ${OpenMP_ROOT}")
+    endif()
+    
     find_package(OpenMP REQUIRED)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(OPENMP_FLAG "-fopenmp=libomp")

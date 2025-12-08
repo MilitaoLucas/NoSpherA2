@@ -31,6 +31,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(BUILD_OPENMP "Necessary if cross compiling from windows to Linux/Darwin" OFF)
     option(USE_VECTOR_INSTRUCTIONS "If you want to use vector instructions. Defaults to ON" ON)
     option(WITH_CLANG_TIDY "Enable clang tidy" OFF)
+    option(USE_CCACHE "Enable ccache for faster rebuilds" ON)
+    set(CCACHE_OPTIONS "" CACHE STRING "Additional ccache options (semicolon-separated)")
     if (NOT (CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
         set(MKL_INTERFACE "lp64" CACHE STRING "ilp64 uses double precision for indices in MKL, the other option is lp64." )
         set(ONEAPI_DIRECTORY $ENV{MKLROOT} CACHE STRING
