@@ -110,7 +110,7 @@ if [ -f "Src/NoSpherA2" ]; then
     if command -v otool >/dev/null 2>&1; then
         echo -e "\n${YELLOW}OpenMP library dependencies:${NC}"
         if otool -L Src/NoSpherA2 2>/dev/null | grep -i omp; then
-            : # Found OpenMP library
+            echo -e "${GREEN}✓ OpenMP library linked successfully${NC}"
         else
             echo "No OpenMP library found in binary (or otool failed)"
         fi

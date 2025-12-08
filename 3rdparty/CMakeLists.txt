@@ -2,6 +2,10 @@ include(ExternalProject)
 
 set(CMAKE_TRY_COMPILE_CONFIGURATION Release)
 set(ENV{CMAKE_TRY_COMPILE_CONFIGURATION} Release)
+# Enable ccache for faster rebuilds (if available and not on Windows)
+if (NOT DEFINED USE_CCACHE)
+    set(USE_CCACHE ON)
+endif()
 if (NOT WIN32 AND USE_CCACHE)
     # Set ccache options if provided
     if (CCACHE_OPTIONS)
