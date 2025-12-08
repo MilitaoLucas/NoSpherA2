@@ -51,25 +51,38 @@ if [ ! -d "$OPENMP_PATH" ]; then
 fi
 echo "✓ OpenMP found at: $OPENMP_PATH"
 
+# Build type (default to Release)
+BUILD_TYPE="${BUILD_TYPE:-Release}"
+
+# Prepare CMake arguments
+CMAKE_ARGS=(
+    -GNinja
+    -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+    -DOpenMP_ROOT="$OPENMP_PATH"
+    -DWITH_CLANG_TIDY=OFF
+)
+
 # Check ccache (optional)
 if command -v ccache >/dev/null 2>&1; then
     echo "✓ ccache found: $(ccache --version | head -n1)"
-    USE_CCACHE_FLAG="-DUSE_CCACHE=YES"
-    CCACHE_FLAGS="-DCCACHE_OPTIONS=\"CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store\""
+    CMAKE_ARGS+=(
+        -DUSE_CCACHE=YES
+        "-DCCACHE_OPTIONS=CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store"
+    )
+    USE_CCACHE_STATUS="YES"
 else
     echo "  ccache not found (optional, install with: brew install ccache)"
-    USE_CCACHE_FLAG="-DUSE_CCACHE=NO"
-    CCACHE_FLAGS=""
+    CMAKE_ARGS+=(-DUSE_CCACHE=NO)
+    USE_CCACHE_STATUS="NO"
 fi
 
-# Build type (default to Release)
-BUILD_TYPE="${BUILD_TYPE:-Release}"
+# Display configuration
 echo -e "\n${YELLOW}Build Configuration:${NC}"
 echo "  Build Type: $BUILD_TYPE"
 echo "  OpenMP Root: $OPENMP_PATH"
 echo "  Generator: Ninja"
 echo "  Clang-tidy: OFF"
-echo "  ccache: $([ -n "$CCACHE_FLAGS" ] && echo "YES" || echo "NO")"
+echo "  ccache: $USE_CCACHE_STATUS"
 
 # Create build directory
 BUILD_DIR="build"
@@ -79,13 +92,7 @@ cd "$BUILD_DIR"
 
 # Configure with CMake
 echo -e "\n${YELLOW}Configuring with CMake...${NC}"
-cmake -GNinja \
-    -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DOpenMP_ROOT="$OPENMP_PATH" \
-    -DWITH_CLANG_TIDY=OFF \
-    $USE_CCACHE_FLAG \
-    $CCACHE_FLAGS \
-    ..
+cmake "${CMAKE_ARGS[@]}" ..
 
 # Build
 echo -e "\n${YELLOW}Building NoSpherA2...${NC}"
