@@ -55,7 +55,7 @@ echo "✓ OpenMP found at: $OPENMP_PATH"
 if command -v ccache >/dev/null 2>&1; then
     echo "✓ ccache found: $(ccache --version | head -n1)"
     USE_CCACHE_FLAG="-DUSE_CCACHE=YES"
-    CCACHE_FLAGS="-DCCACHE_OPTIONS=CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store"
+    CCACHE_FLAGS="-DCCACHE_OPTIONS=\"CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store\""
 else
     echo "  ccache not found (optional, install with: brew install ccache)"
     USE_CCACHE_FLAG="-DUSE_CCACHE=NO"

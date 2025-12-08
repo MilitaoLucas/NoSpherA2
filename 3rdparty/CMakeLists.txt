@@ -5,7 +5,6 @@ set(ENV{CMAKE_TRY_COMPILE_CONFIGURATION} Release)
 if (NOT WIN32 AND USE_CCACHE)
     # Set ccache options if provided
     if (CCACHE_OPTIONS)
-        string(REPLACE ";" " " CCACHE_OPTION_STRING "${CCACHE_OPTIONS}")
         foreach(option ${CCACHE_OPTIONS})
             if(option MATCHES "^([^=]+)=(.+)$")
                 set(ENV{${CMAKE_MATCH_1}} ${CMAKE_MATCH_2})
