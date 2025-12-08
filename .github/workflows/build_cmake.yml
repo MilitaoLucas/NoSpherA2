@@ -48,7 +48,11 @@ jobs:
         source ~/.cargo/env
         mkdir -p build
         cd build
-        cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+        cmake -GNinja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DWITH_CLANG_TIDY=OFF \
+          -DUSE_CCACHE=YES \
+          ..
         cmake --build . --target NoSpherA2 -j
 
     - name: Upload Linux Binary
@@ -87,9 +91,12 @@ jobs:
         mkdir -p build
         cd build
         # Build as universal binary for both x86_64 and arm64
+        # Auto-detect OpenMP location (brew installs to /opt/homebrew on arm64)
         cmake -GNinja \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+          -DWITH_CLANG_TIDY=OFF \
+          -DUSE_CCACHE=YES \
           ..
         cmake --build . --target NoSpherA2 -j
 
