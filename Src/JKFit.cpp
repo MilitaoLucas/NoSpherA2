@@ -335,16 +335,18 @@ std::shared_ptr<BasisSet> BasisSetLibrary::get_basis_set(std::string basis_name)
             found_basis = aux_basis_sets[basis_set_idx].name;
             break;
         }
-        if (name.find(basis_name) != std::string::npos &&
-            (selected_idx == -1 ||
-                name.size() < std::string_view(aux_basis_sets[selected_idx].name).size() ||
-                (name.size() == std::string_view(aux_basis_sets[selected_idx].name).size() &&
-                    name < std::string_view(aux_basis_sets[selected_idx].name)))) {
+        if (name.find(basis_name) != std::string::npos) {
+            const std::string_view selected_name = (selected_idx == -1) ? std::string_view() : std::string_view(aux_basis_sets[selected_idx].name);
+            if (selected_idx == -1 ||
+                name.size() < selected_name.size() ||
+                (name.size() == selected_name.size() &&
+                    name < selected_name)) {
             selected_idx = basis_set_idx;
             found_basis = aux_basis_sets[basis_set_idx].name;
+            }
         }
     }
-    err_checkf(found_basis != "", "Basis set " + basis_name + " not defined in BasisSetLibrary!", std::cout);
+    err_checkf(selected_idx != -1, "Basis set " + basis_name + " not defined in BasisSetLibrary!", std::cout);
     return std::make_shared<BasisSet>(aux_basis_sets[selected_idx]);
 }
 
