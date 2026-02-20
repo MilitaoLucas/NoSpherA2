@@ -22,6 +22,7 @@ BASIS_OBJS := $(BASIS_OBJ_NAMES:=.o_basis)
 basis_set_converter: ${BASIS_OBJS}
 	@${COMP} -o "BasisSetConverter" ${BASIS_OBJS}
 	@mv BasisSetConverter ../
+	@${RM} ../Src/auxiliary_basis.cpp ../Src/checkpoint.txt
 	./../BasisSetConverter ../Src/basis_set_helper ../Src
 	@echo 'Done building basis_set_helper'
 
@@ -33,5 +34,4 @@ clean:
 
 .PHONY: all clean basis_set_converter
 .SECONDARY:
-
 
