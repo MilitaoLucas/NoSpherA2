@@ -179,9 +179,7 @@ occ: LibCint
 	@if [ ! -f Lib/occ/lib/libocc.a ]; then \
 		echo 'Building OCC, since Lib/occ/lib/libocc_main.a doesnt exist'; \
 		cmake --workflow --preset linux-occ-gcc && \
-		cmake --install build-linux-occ-gcc && \
-	  	cd build-linux-occ-gcc && ar M < libocc.ar && cd .. && \
-		cp build-linux-occ-gcc/liblibocc.a Lib/occ/lib/libocc.a; \
+		cmake --install build-linux-occ-gcc; \
 	else \
 		echo 'Skipping OCC build, Lib/occ/lib/libocc_main.a already exists'; \
 	fi

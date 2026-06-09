@@ -29,7 +29,10 @@
         "ENV_PATH": "${sourceDir}/mambaenv",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/Lib/occ",
         "USE_SYSTEM_LIBCINT": "ON",
-        "ONLY_OCC": "ON"
+        "BUILD_UNIFIED_LIB": "ON",
+        "ONLY_OCC": "ON",
+        "TBBMALLOC_BUILD": "OFF",
+        "CMAKE_INSTALL_LIBDIR": "lib"
       }
     },
     {
@@ -159,12 +162,12 @@
     {
       "name": "macos-release-arm64",
       "configurePreset": "macos-release-arm64",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "macos-release-x86_64",
       "configurePreset": "macos-release-x86_64",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "macos-debug",
@@ -173,7 +176,7 @@
     {
       "name": "windows-clang-cl",
       "configurePreset": "windows-clang-cl",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "linux-gcc",
@@ -182,7 +185,7 @@
     {
       "name": "linux-occ-gcc",
       "configurePreset": "linux-occ-gcc",
-      "targets": "occ"
+      "targets": "all"
     }
   ],
   "testPresets": [

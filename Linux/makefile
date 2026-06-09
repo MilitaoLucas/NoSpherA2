@@ -17,7 +17,7 @@ MKL_THREADING ?= INTEL     # INTEL | SEQ  (INTEL = mkl_intel_thread + libiomp5)
 SRC_DIR := ../Src
 USER_INC_DIRS := ../Src ../Lib ../Src/occ
 SYSTEM_INC_DIRS := ../Lib/featomic_install/include ../Lib/LibCint/include ../Lib/occ/include
-LIB_OCC := $(wildcard ../Lib/occ/lib/*.a)
+LIB_OCC := $(wildcard ../Lib/occ/lib/*.a) $(wildcard ../Lib/occ/lib64/*.a)
 #LibCint local libs
 LIBCINT		   := ../Lib/LibCint/lib/libcint.a
 
@@ -29,10 +29,10 @@ LIBRASCALINE_I := ../Lib/featomic_install/include
 # ---- Compiler flags (no -fopenmp at link time; only at compile time) ----
 GCC_OPTS       := -std=c++2b -O3 -c -fmessage-length=0 -fopenmp -static -MMD -MP \
                   -msse2 -msse3 -msse4.1 -msse4.2 -mavx -ffast-math \
-                  -include pch.h -mfma
+                  -include pch.h -mfma -DSPDLOG_FMT_EXTERNAL
 GCC_OPTS_DEBUG := -std=c++2b -Og -g -c -fmessage-length=0 -static -MMD -MP \
                   -msse2 -msse3 -msse4.1 -msse4.2 -mavx -ffast-math \
-                  -include pch.h -mfma
+                  -include pch.h -mfma -DSPDLOG_FMT_EXTERNAL
 
 # Include directories
 INCLUDES := $(addprefix -I,$(USER_INC_DIRS)) $(foreach d,$(SYSTEM_INC_DIRS),-isystem $(d))
@@ -124,14 +124,14 @@ $(PCH_GCH_D): ../Src/pch.h
 # ---- Link ----
 NoSpherA2: ${OBJS}
 	@echo 'Building target: $@'
-	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2" ${OBJS} ${LIBRASCALINE} $(MKL_LINK_FLAGS) $(LIBCINT) ../Lib/occ/lib/libocc.a ${LIBS}
+	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2" ${OBJS} ${LIBRASCALINE} $(MKL_LINK_FLAGS) $(LIBCINT) $(LIB_OCC) ${LIBS}
 	cp NoSpherA2 ../
 	cp ../Lib/MKL/compiler/latest/lib/libiomp5.so ../
 	@echo 'Done building NoSpherA2'
 
 NoSpherA2_Debug: ${OBJS_d}
 	@echo 'Building target: $@'
-	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2_Debug" ${OBJS_d} ${LIBRASCALINE} $(MKL_LINK_FLAGS) $(LIBCINT) ../Lib/occ/lib/libocc.a ${LIBS}
+	@$(WITH_ONEAPI) ${COMP} -o "NoSpherA2_Debug" ${OBJS_d} ${LIBRASCALINE} $(MKL_LINK_FLAGS) $(LIBCINT) $(LIB_OCC) ${LIBS}
 	cp NoSpherA2_Debug ../
 	cp ../Lib/MKL/compiler/latest/lib/libiomp5.so ../
 	@echo 'Done building Debug version of NoSpherA2'
