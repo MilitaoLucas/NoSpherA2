@@ -180,29 +180,29 @@ if(ONLY_OCC)
         else()
             set(libcint_dir ${CMAKE_SOURCE_DIR}/Lib/LibCint)
         endif()
-        # add_library(cint STATIC IMPORTED)
-        # set_target_properties(
-        #     cint
-        #     PROPERTIES
-        #         IMPORTED_LOCATION "${libcint_dir}/lib/libcint.a"
-        #         INTERFACE_INCLUDE_DIRECTORIES "${libcint_dir}/include"
-        # )
-        # if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        #     target_link_libraries(cint INTERFACE -lquadmath)
-        # endif()
+        add_library(cint STATIC IMPORTED)
+        set_target_properties(
+            cint
+            PROPERTIES
+                IMPORTED_LOCATION "${libcint_dir}/lib/libcint.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${libcint_dir}/include"
+        )
+        if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+            target_link_libraries(cint INTERFACE -lquadmath)
+        endif()
     endif()
 else()
     add_subdirectory(libcint)
 endif()
 
-# add_library(libcint::libcint INTERFACE IMPORTED GLOBAL)
-# target_link_libraries(libcint::libcint INTERFACE cint)
-# target_include_directories(
-#     libcint::libcint
-#     INTERFACE
-#         "${CMAKE_SOURCE_DIR}/libcint/include"
-#         "${CMAKE_SOURCE_DIR}/libcint/src"
-# )
+add_library(libcint::libcint INTERFACE IMPORTED GLOBAL)
+target_link_libraries(libcint::libcint INTERFACE cint)
+target_include_directories(
+    libcint::libcint
+    INTERFACE
+        "${CMAKE_SOURCE_DIR}/libcint/include"
+        "${CMAKE_SOURCE_DIR}/libcint/src"
+)
 set(USE_SYSTEM_LIBCINT "ON")
 set(BUILD_FPIC "ON")
 set(WITH_PYTHON_BINDINGS "OFF")
