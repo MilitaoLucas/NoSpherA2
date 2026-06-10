@@ -11,7 +11,7 @@ runs:
     - name: Run sccache-cache
       uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
       with:
-        key: ${{ inputs.platform }}-sccache }}
+        key: ${{ inputs.platform }}-sccache
         max-size: "1GB"
         variant: "sccache"
         evict-old-files: "1d" # Removes files older than 1 day that weren't used in the build
@@ -21,21 +21,21 @@ runs:
       uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
       with:
         path: Lib/occ
-        key: ${{ inputs.platform }}-occ-${{ hashFiles('occ/**', 'CMakePresets.json') }}
+        key: ${{ inputs.platform }}-occ-${{ hashFiles('occ/**', 'libcint/**', 'CMakeLists.txt', 'CMakePresets.json') }}
 
     - name: Cache occ
       if: inputs.platform == 'Mac_ARM64'
       uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
       with:
         path: Lib/occ_arm64
-        key: ${{ inputs.platform }}-occ-${{ hashFiles('occ/**', 'CMakePresets.json') }}
+        key: ${{ inputs.platform }}-occ-${{ hashFiles('occ/**', 'libcint/**', 'CMakeLists.txt', 'CMakePresets.json') }}
 
     - name: Cache occ
       if: inputs.platform == 'Mac_x86_64'
       uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
       with:
         path: Lib/occ_x86_64
-        key: ${{ inputs.platform }}-occ-${{ hashFiles('occ/**', 'CMakePresets.json') }}
+        key: ${{ inputs.platform }}-occ-${{ hashFiles('occ/**', 'libcint/**', 'CMakeLists.txt', 'CMakePresets.json') }}
 
     - name: Cache featomic (Linux / Windows)
       if: inputs.platform == 'Linux' || inputs.platform == 'Windows'
