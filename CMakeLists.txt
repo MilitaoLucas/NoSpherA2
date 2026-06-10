@@ -177,9 +177,6 @@ else()
     # which is impossible for an IMPORTED prebuilt archive (the archiver
     # would store the whole libcint.a as a raw member, which ld64 rejects).
     add_subdirectory(libcint)
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        target_link_libraries(cint INTERFACE -lquadmath)
-    endif()
 endif()
 
 add_library(libcint::libcint INTERFACE IMPORTED GLOBAL)
