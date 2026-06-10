@@ -55,7 +55,7 @@
         "TBB_BUILD_SHARED": "OFF",
         "GG_NO_PRAGMA": "ON",
         "CPACK_SYSTEM_NAME": "windows",
-        "CMAKE_CXX_FLAGS": "-D__TBB_DYNAMIC_LOAD_ENABLED=0 /EHsc /MT",
+        "CMAKE_CXX_FLAGS": "-D__TBB_DYNAMIC_LOAD_ENABLED=0 -D__TBB_NO_IMPLICIT_LINKAGE=1 /EHsc /MT",
         "CMAKE_C_FLAGS": "/EHsc /MT"
       },
       "condition": {
