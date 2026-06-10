@@ -277,6 +277,7 @@ ADD_FUNCS_TO_KERNEL_3C(Overlap3C_SPH, int3c1e_optimizer, GTOnr3c_drv, int3c1e_sp
 #undef ADD_FUNCS_TO_KERNEL
 #undef ADD_FUNCS_TO_KERNEL_NOOPT
 #undef ADD_FUNCS_TO_KERNEL_3C
+#undef BLKSIZE // Has to be undefined because it is being redefined and mac doesn't like this
 
 
 
