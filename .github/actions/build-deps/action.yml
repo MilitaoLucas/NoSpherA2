@@ -63,8 +63,12 @@ runs:
       run: |
         source ~/.cargo/env || true
         export PATH="$HOME/.cargo/bin:$PATH"
-        make IntelMKL featomic LibCint occ BasisSetConverter -j3
-        echo "LD_LIBRARY_PATH=${{ github.workspace }}/Lib/MKL/compiler/2025.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        make IntelMKL
+        make featomic 
+        make LibCint
+        make occ
+        make BasisSetConverter
+        echo "LD_LIBRARY_PATH=${{ github.workspace }}/Lib/MKL/compiler/2025.3/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
     - name: Build dependencies (Windows)
       if: inputs.platform == 'Windows'
