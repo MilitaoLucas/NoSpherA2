@@ -133,7 +133,7 @@ runs:
         }
         
         #Build OCC
-        $OccOut = Join-Path $env:GITHUB_WORKSPACE "Lib\occ\lib\occ_main.lib"
+        $OccOut = Join-Path $env:GITHUB_WORKSPACE "Lib\occ\lib\libocc.lib"
         if (Test-Path $OccOut) {
           Write-Host "OCC already built ($OccOut)"
         } else {
