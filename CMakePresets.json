@@ -197,42 +197,47 @@
     {
       "name": "macos-release-arm64",
       "configurePreset": "macos-release-arm64",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "macos-release-x86_64",
       "configurePreset": "macos-release-x86_64",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "macos-debug",
-      "configurePreset": "macos-debug"
+      "configurePreset": "macos-debug",
+      "targets": "all"
     },
     {
       "name": "windows-clang-cl",
       "configurePreset": "windows-clang-cl",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "linux-gcc",
-      "configurePreset": "linux-gcc"
+      "configurePreset": "linux-gcc",
+      "targets": "all"
     },
     {
       "name": "linux-gcc-debug",
-      "configurePreset": "linux-gcc-debug"
+      "configurePreset": "linux-gcc-debug",
+      "targets": "all"
     },
     {
       "name": "linux-clang",
-      "configurePreset": "linux-clang"
+      "configurePreset": "linux-clang",
+      "targets": "all"
     },
     {
       "name": "Debug",
-      "configurePreset": "Debug"
+      "configurePreset": "Debug",
+      "targets": "all"
     },
     {
       "name": "linux-occ-gcc",
       "configurePreset": "linux-occ-gcc",
-      "targets": "occ"
+      "targets": "all"
     }
   ],
   "testPresets": [
