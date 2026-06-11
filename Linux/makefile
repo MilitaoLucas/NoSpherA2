@@ -29,10 +29,10 @@ LIBRASCALINE_I := ../Lib/featomic_install/include
 # ---- Compiler flags (no -fopenmp at link time; only at compile time) ----
 GCC_OPTS       := -std=c++2b -O3 -c -fmessage-length=0 -fopenmp -static -MMD -MP \
                   -msse2 -msse3 -msse4.1 -msse4.2 -mavx -ffast-math \
-                  -include pch.h -mfma -DSPDLOG_FMT_EXTERNAL
+                  -include pch.h -mfma -DSPDLOG_FMT_EXTERNAL -DHAVE_CBRT -DHAVE_ECPINT
 GCC_OPTS_DEBUG := -std=c++2b -Og -g -c -fmessage-length=0 -static -MMD -MP \
                   -msse2 -msse3 -msse4.1 -msse4.2 -mavx -ffast-math \
-                  -include pch.h -mfma -DSPDLOG_FMT_EXTERNAL
+                  -include pch.h -mfma -DSPDLOG_FMT_EXTERNAL -DHAVE_CBRT -DHAVE_ECPINT
 
 # Include directories
 INCLUDES := $(addprefix -I,$(USER_INC_DIRS)) $(foreach d,$(SYSTEM_INC_DIRS),-isystem $(d))
