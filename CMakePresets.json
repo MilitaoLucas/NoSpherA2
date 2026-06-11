@@ -29,7 +29,10 @@
         "ENV_PATH": "${sourceDir}/mambaenv",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/Lib/occ",
         "USE_SYSTEM_LIBCINT": "ON",
-        "ONLY_OCC": "ON"
+        "BUILD_UNIFIED_LIB": "ON",
+        "ONLY_OCC": "ON",
+        "TBBMALLOC_BUILD": "OFF",
+        "CMAKE_INSTALL_LIBDIR": "lib"
       }
     },
     {
@@ -52,7 +55,7 @@
         "TBB_BUILD_SHARED": "OFF",
         "GG_NO_PRAGMA": "ON",
         "CPACK_SYSTEM_NAME": "windows",
-        "CMAKE_CXX_FLAGS": "-D__TBB_DYNAMIC_LOAD_ENABLED=0 /EHsc /MT",
+        "CMAKE_CXX_FLAGS": "-D__TBB_DYNAMIC_LOAD_ENABLED=0 -D__TBB_NO_IMPLICIT_LINKAGE=1 /EHsc /MT",
         "CMAKE_C_FLAGS": "/EHsc /MT"
       },
       "condition": {
@@ -77,37 +80,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_SHARED_LIBS": "OFF",
-        "TBB_BUILD_SHARED": "OFF",
-        "CCACHE_OPTIONS": "CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store",
-        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
-        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
-      }
-    },
-    {
-      "name": "linux-gcc-debug",
-      "displayName": "linux-gcc-debug (ccache)",
-      "description": "Debug build for Linux using GCC and ccache",
-      "inherits": "base-options",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "BUILD_SHARED_LIBS": "OFF",
-        "TBB_BUILD_SHARED": "OFF",
-        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
-        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
-        "CMAKE_CXX_FLAGS": "-O1 -g3 -fno-omit-frame-pointer",
-        "CMAKE_C_FLAGS": "-O1 -g3 -fno-omit-frame-pointer"
-      }
-    },
-    {
-      "name": "linux-clang",
-      "displayName": "linux-clang (ccache)",
-      "description": "Release build for Linux using Clang and ccache",
-      "inherits": "base-options",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "BUILD_SHARED_LIBS": "OFF",
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++",
         "TBB_BUILD_SHARED": "OFF",
         "CCACHE_OPTIONS": "CCACHE_CPP2=true;CCACHE_SLOPPINESS=clang_index_store",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache",
@@ -171,14 +143,10 @@
     },
     {
       "name": "Debug",
-      "inherits": "linux-clang",
-      "displayName": "Debug (clang/ccache)",
+      "inherits": "base-options",
+      "displayName": "Debug (GCC/ccache)",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_CXX_FLAGS": "-O1 -g3 -fno-omit-frame-pointer",
-        "CMAKE_C_FLAGS": "-O1 -g3 -fno-omit-frame-pointer"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
@@ -194,12 +162,12 @@
     {
       "name": "macos-release-arm64",
       "configurePreset": "macos-release-arm64",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "macos-release-x86_64",
       "configurePreset": "macos-release-x86_64",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "macos-debug",
@@ -208,28 +176,16 @@
     {
       "name": "windows-clang-cl",
       "configurePreset": "windows-clang-cl",
-      "targets": "occ"
+      "targets": "all"
     },
     {
       "name": "linux-gcc",
       "configurePreset": "linux-gcc"
     },
     {
-      "name": "linux-gcc-debug",
-      "configurePreset": "linux-gcc-debug"
-    },
-    {
-      "name": "linux-clang",
-      "configurePreset": "linux-clang"
-    },
-    {
-      "name": "Debug",
-      "configurePreset": "Debug"
-    },
-    {
       "name": "linux-occ-gcc",
       "configurePreset": "linux-occ-gcc",
-      "targets": "occ"
+      "targets": "all"
     }
   ],
   "testPresets": [
@@ -277,32 +233,6 @@
       ]
     },
     {
-      "name": "linux-gcc-debug",
-      "steps": [
-        {
-          "type": "configure",
-          "name": "linux-gcc-debug"
-        },
-        {
-          "type": "build",
-          "name": "linux-gcc-debug"
-        }
-      ]
-    },
-    {
-      "name": "linux-clang",
-      "steps": [
-        {
-          "type": "configure",
-          "name": "linux-clang"
-        },
-        {
-          "type": "build",
-          "name": "linux-clang"
-        }
-      ]
-    },
-    {
       "name": "linux-occ-gcc",
       "steps": [
         {
@@ -338,19 +268,6 @@
         {
           "type": "build",
           "name": "macos-release-x86_64"
-        }
-      ]
-    },
-    {
-      "name": "Debug",
-      "steps": [
-        {
-          "type": "configure",
-          "name": "Debug"
-        },
-        {
-          "type": "build",
-          "name": "Debug"
         }
       ]
     }
