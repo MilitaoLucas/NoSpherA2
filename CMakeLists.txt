@@ -169,50 +169,34 @@ set(ENABLE_STATIC "ON")
 set(BUILD_SHARED_LIBS "OFF")
 set(PYPZPX "ON")
 set(WITH_RANGE_COULOMB "ON")
-if(ONLY_OCC)
-    if(WIN32)
-        set(libcint_IMPORTED_LOCATION
-            "${CMAKE_CURRENT_SOURCE_DIR}/Lib/LibCint/lib/cint.lib"
-        )
-        if(EXISTS ${libcint_IMPORTED_LOCATION})
-            message(
-                STATUS
-                "Using precompiled libcint from ${libcint_IMPORTED_LOCATION}"
-            )
-        else()
-            message(
-                FATAL_ERROR
-                "You beed to run '.\\Windows\\Build_Dependencies\\build_deps.ps1 .'"
-            )
-        endif()
-        add_library(cint STATIC IMPORTED)
-        set_target_properties(
-            cint
-            PROPERTIES
-                IMPORTED_LOCATION "${libcint_IMPORTED_LOCATION}"
-                INTERFACE_INCLUDE_DIRECTORIES
-                    "${CMAKE_CURRENT_SOURCE_DIR}/Lib/LibCint/include"
+if(ONLY_OCC AND WIN32)
+    set(libcint_IMPORTED_LOCATION
+        "${CMAKE_CURRENT_SOURCE_DIR}/Lib/LibCint/lib/cint.lib"
+    )
+    if(EXISTS ${libcint_IMPORTED_LOCATION})
+        message(
+            STATUS
+            "Using precompiled libcint from ${libcint_IMPORTED_LOCATION}"
         )
     else()
-        if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-            set(libcint_dir
-                ${CMAKE_CURRENT_SOURCE_DIR}/Lib/LibCint_${CMAKE_SYSTEM_PROCESSOR}
-            )
-        else()
-            set(libcint_dir ${CMAKE_CURRENT_SOURCE_DIR}/Lib/LibCint)
-        endif()
-        add_library(cint STATIC IMPORTED)
-        set_target_properties(
-            cint
-            PROPERTIES
-                IMPORTED_LOCATION "${libcint_dir}/lib/libcint.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${libcint_dir}/include"
+        message(
+            FATAL_ERROR
+            "You beed to run '.\\Windows\\Build_Dependencies\\build_deps.ps1 .'"
         )
-        if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-            target_link_libraries(cint INTERFACE -lquadmath)
-        endif()
     endif()
+    add_library(cint STATIC IMPORTED)
+    set_target_properties(
+        cint
+        PROPERTIES
+            IMPORTED_LOCATION "${libcint_IMPORTED_LOCATION}"
+            INTERFACE_INCLUDE_DIRECTORIES
+                "${CMAKE_CURRENT_SOURCE_DIR}/Lib/LibCint/include"
+    )
 else()
+    # Build libcint from the submodule so that `cint` is a real in-tree
+    # target: BUILD_UNIFIED_LIB embeds $<TARGET_OBJECTS:cint> into libocc.a,
+    # which is impossible for an IMPORTED prebuilt archive (the archiver
+    # would store the whole libcint.a as a raw member, which ld64 rejects).
     add_subdirectory(libcint)
 endif()
 
