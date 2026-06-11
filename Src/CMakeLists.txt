@@ -161,8 +161,8 @@ target_link_libraries(
         $<$<PLATFORM_ID:Darwin>:OpenMP::OpenMP_C
         OpenMP::OpenMP_CXX>
         libcint::libcint
-        occ::qm
-        occ::main
+        occ_qm
+        occ_main
         mdspan
         featomic::static
         metatensor::static
