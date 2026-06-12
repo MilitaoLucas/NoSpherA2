@@ -63,7 +63,7 @@ namespace constants
     constexpr double INV_SQRT3 = 1.0 / SQRT3;
     constexpr double INV_SQRT5 = 1.0 / SQRT5;
     constexpr int hardness = 3;
-    constexpr double cutoff = 1.0e-20;
+    constexpr double cutoff = 1.0e-11;
     constexpr double far_away = 10.0;
     constexpr double far_away_sq = far_away * far_away;
     constexpr double PI = 3.1415926535897932384626433832795028;
