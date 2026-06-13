@@ -27,37 +27,34 @@ if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
     set(MKL_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Lib/MKL)
     set(MKL_LINK "static")
     set(MKL_INTERFACE lp64)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/micromamba.cmake)
-    file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/../environment.yml _ENV_HASH)
+    # include(${CMAKE_SOURCE_DIR}/cmake/micromamba.cmake)
+    file(SHA1  ${CMAKE_SOURCE_DIR}/environment.yml _ENV_HASH)
     set(_SAVED_ENV_HASH "")
     if(EXISTS ${CMAKE_BINARY_DIR}/env.sha1)
         file(READ ${CMAKE_BINARY_DIR}/env.sha1 _SAVED_ENV_HASH OPTIONAL)
         file(READ ${CMAKE_BINARY_DIR}/location MICROMAMBA_ENV_PATH)
-    endif()
-    if(WIN32)
-        set(_ONEAPI_MKL_ROOT "${MICROMAMBA_ENV_PATH}/Library")
-    else()
+    endif ()
+    if (WIN32)
+        set(_ONEAPI_MKL_ROOT "C:/Program Files (x86)/Intel/oneAPI/mkl/latest")
+    else ()
         set(_ONEAPI_MKL_ROOT "${MICROMAMBA_ENV_PATH}")
-    endif()
-    if(NOT "${_SAVED_ENV_HASH}" STREQUAL "${_ENV_HASH}")
-        micromamba_environment(
-            NAME mambaenv
-            ENV_PATH "${ENV_PATH}"
-            SPEC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../environment.yml
-        )
-        file(SHA1 ${CMAKE_CURRENT_SOURCE_DIR}/../environment.yml _ENV_HASH)
+    endif ()
+    if (NOT "${_SAVED_ENV_HASH}" STREQUAL "${_ENV_HASH}")
+        # micromamba disabled – no environment creation
+
+        file(SHA1 ${CMAKE_SOURCE_DIR}/environment.yml _ENV_HASH)
         file(WRITE ${CMAKE_BINARY_DIR}/env.sha1 ${_ENV_HASH})
         file(WRITE ${CMAKE_BINARY_DIR}/location ${MICROMAMBA_ENV_PATH})
         # Update the path after environment creation
-        if(WIN32)
-            set(_ONEAPI_MKL_ROOT "${MICROMAMBA_ENV_PATH}/Library")
-        else()
+        if (WIN32)
+            set(_ONEAPI_MKL_ROOT "C:/Program Files (x86)/Intel/oneAPI/mkl/latest")
+        else ()
             set(_ONEAPI_MKL_ROOT "${MICROMAMBA_ENV_PATH}")
         endif()
     else()
-        if(WIN32)
-            set(_ONEAPI_MKL_ROOT "${MICROMAMBA_ENV_PATH}/Library")
-        else()
+        if (WIN32)
+            set(_ONEAPI_MKL_ROOT "C:/Program Files (x86)/Intel/oneAPI/mkl/latest")
+        else ()
             set(_ONEAPI_MKL_ROOT "${MICROMAMBA_ENV_PATH}")
         endif()
     endif()
@@ -70,17 +67,12 @@ if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
         HINTS "${_ONEAPI_MKL_ROOT}/lib/cmake"
         PATH_SUFFIXES "mkl"
     )
-    if(WIN32)
-        file(
-            COPY "${_ONEAPI_MKL_ROOT}/bin/libiomp5md.dll"
-            DESTINATION "${CMAKE_BINARY_DIR}"
-        )
-    else()
-        file(
-            COPY "${_ONEAPI_MKL_ROOT}/lib/libiomp5.so"
-            DESTINATION "${CMAKE_BINARY_DIR}"
-        )
-    endif()
+    if (WIN32)
+        # No DLL copy needed for static MKL builds; the libiomp5md library is linked directly.
+        # Keeping the block empty avoids the missing‑file error.
+    else ()
+        file(COPY "${_ONEAPI_MKL_ROOT}/lib/libiomp5.so" DESTINATION "${CMAKE_BINARY_DIR}")
+    endif ()
     message(STATUS "Imported oneMKL targets: ${MKL_IMPORTED_TARGETS}")
     set(MKL_INCLUDE "${_ONEAPI_MKL_ROOT}/include" PARENT_SCOPE)
     set(MKL_DLL_PATH "${_ONEAPI_MKL_ROOT}/bin" PARENT_SCOPE)
